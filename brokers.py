@@ -5,7 +5,8 @@ import threading
 
 # Configurações do servidor UDP
 SERVER_IP = 'localhost'
-SERVER_PORT = 12345
+SERVER_PORT = 8888
+SENSOR_COMMAND_PORT = 12348
 
 # Dicionário para armazenar as inscrições dos clientes em cada tópico
 topic_subscriptions = {}
@@ -23,18 +24,36 @@ app = Flask(__name__)
 def subscribe_to_topic():
     data = request.get_json()
     topic = data.get('topic')
-    addr = request.remote_addr
-    if topic:
+    addr = request.remote_addr  # Obtém o endereço IP do cliente
+    port = data.get('port')  # Obtém a porta do cliente do corpo da solicitação JSON
+    print(port)
+    if topic and port:
         if topic not in topic_subscriptions:
             topic_subscriptions[topic] = set()
-        topic_subscriptions[topic].add(addr)
-        print(f'Cliente {addr} se inscreveu no tópico "{topic}"')
+        # Armazena uma tupla contendo o endereço IP e a porta do cliente
+        topic_subscriptions[topic].add((addr, port))
+        print(f'Cliente {addr}:{port} se inscreveu no tópico "{topic}"')
         return jsonify({'message': f'Inscrição no tópico "{topic}" realizada com sucesso'})
     else:
-        return jsonify({'error': 'Tópico não fornecido'}), 400
+        return jsonify({'error': 'Tópico ou porta não fornecidos'}), 400
 
+
+
+# Rota para ligar o sensor
 @app.route('/ligar_sensor', methods=['POST'])
+def ligar_sensor():
+    sensor_ligado = True
+    threading.Thread(target=enviar_comando_ligar_sensor).start()
+    print("Sensor ligado.")
+    return jsonify({'message': 'Sensor ligado com sucesso'})
+    #else:
+     #   return jsonify({'message': 'O sensor já está ligado'}), 400
 
+# Função para enviar o comando de ligar ao sensor
+def enviar_comando_ligar_sensor():
+    message = {'action': 'ligar'}
+    server_socket.sendto(json.dumps(message).encode(), ('localhost', SENSOR_COMMAND_PORT))
+    
 
 
 # Função para processar as mensagens recebidas e encaminhá-las aos clientes inscritos
@@ -44,27 +63,31 @@ def process_message(data, addr):
         topic = message.get('topic')
         content = message.get('content')
         action = message.get('action')
-       
 
-        # Ação de escrever o sensor em um topico
+        # Ação de escrever o sensor em um tópico
         if topic not in topic_subscriptions and action == 'subscribe':
             topic_subscriptions[topic] = set()
             print(f'O sensor se inscreveu no tópico "{topic}"')
-       
+
         # Ação de enviar mensagem do sensor
         elif topic and action == 'LIGAR':
-            if topic_subscriptions[topic]:
+            print(topic_subscriptions)
+            if topic not in topic_subscriptions:
+                topic_subscriptions[topic] = set()
+            elif topic in topic_subscriptions and topic_subscriptions[topic] != set():  
                 subscribers = topic_subscriptions[topic]
                 for subscriber in subscribers:
                     server_socket.sendto(json.dumps({'content': content}).encode(), subscriber)
-                print(f'Mensagem encaminhada para {len(subscribers)} cliente(s) inscrito(s) no tópico "{topic}"')
 
                 print(f'Mensagem encaminhada para {len(subscribers)} cliente(s) inscrito(s) no tópico "{topic}"')
             else:
                 print(f'Nenhum cliente inscrito no tópico "{topic}" para encaminhar a mensagem')
-
+        else:
+            print(f'Mensagem recebida de {addr}: {content}')
     except json.JSONDecodeError:
         print(f'Mensagem inválida recebida de {addr}: {data.decode()}')
+
+
 
 # Função para iniciar o servidor Flask em uma thread separada
 def start_flask():
@@ -79,7 +102,7 @@ if __name__ == '__main__':
     while True:
         # Recebe os dados do cliente
         data, addr = server_socket.recvfrom(1024)
-
+    
         # Processa os dados recebidos
         process_message(data, addr)
         print(topic_subscriptions)

@@ -5,10 +5,8 @@ import threading
 
 # Configurações do servidor UDP
 SERVER_IP = 'localhost'
-SERVER_PORT = 12345
-BROKER_IP = 'localhost'
-BROKER_PORT = 12346
-SENSOR_COMMAND_PORT = 12347
+SERVER_PORT = 8888
+
 INITIAL_TOPIC = 'Sensor de Temperatura'
 
 # Criação do socket UDP
@@ -16,31 +14,16 @@ sensor_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Variáveis para armazenar os valores de temperatura e umidade
 temperatura = 25.5
-umidade = 60.0
+
 
 # Variável para controlar se o sensor está ligado ou desligado
 sensor_ligado = False
 
 # Função para enviar mensagens ao servidor
 def send_message(topic, content, action):
-    #client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     message = {'topic': topic, 'content': content, 'action': action}
     sensor_socket.sendto(json.dumps(message).encode(), (SERVER_IP, SERVER_PORT))
 
-# Função para se conectar ao broker e aguardar comandos de ligar e desligar o sensor
-def conectar_e_aguardar_comandos():
-    global sensor_ligado
-    sensor_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sensor_socket.bind((SERVER_IP, SENSOR_COMMAND_PORT))
-    print("Aguardando comandos do broker...")
-    while True:
-        data, addr = sensor_socket.recvfrom(1024)
-        message = json.loads(data.decode())
-        action = message.get('action')
-        if action == 'ligar':
-            ligar_sensor()
-        elif action == 'desligar':
-            desligar_sensor()
 
 # Função para simular a leitura de dados do sensor
 def ler_dados_sensor():
@@ -72,11 +55,6 @@ def desligar_sensor():
 def subscribe_to_topic(topic):
     message = {'action': 'subscribe', 'topic': topic}
     sensor_socket.sendto(json.dumps(message).encode(), (SERVER_IP, SERVER_PORT))
-
-
-# Thread para se conectar ao broker e aguardar comandos
-thread_conectar_broker = threading.Thread(target=conectar_e_aguardar_comandos)
-thread_conectar_broker.start()
 
 # Inscreve o sensor no tópico inicial
 subscribe_to_topic(INITIAL_TOPIC)
