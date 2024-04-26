@@ -10,6 +10,7 @@ SENSOR_COMMAND_PORT = 12348
 
 # Dicionário para armazenar as inscrições dos clientes em cada tópico
 topic_subscriptions = {}
+endereco_disp = {}
 
 # Criação do socket UDP
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -40,20 +41,10 @@ def subscribe_to_topic():
 
 
 # Rota para ligar o sensor
-@app.route('/ligar_sensor', methods=['POST'])
+@app.route('/alterar_estado', methods=['PUT'])
 def ligar_sensor():
-    sensor_ligado = True
-    threading.Thread(target=enviar_comando_ligar_sensor).start()
-    print("Sensor ligado.")
-    return jsonify({'message': 'Sensor ligado com sucesso'})
-    #else:
-     #   return jsonify({'message': 'O sensor já está ligado'}), 400
-
-# Função para enviar o comando de ligar ao sensor
-def enviar_comando_ligar_sensor():
-    message = {'action': 'ligar'}
-    server_socket.sendto(json.dumps(message).encode(), ('localhost', SENSOR_COMMAND_PORT))
-    
+    topic = data.get('topic')
+        
 
 
 # Função para processar as mensagens recebidas e encaminhá-las aos clientes inscritos
@@ -64,13 +55,13 @@ def process_message(data, addr):
         content = message.get('content')
         action = message.get('action')
 
-        # Ação de escrever o sensor em um tópico
+        # Ação de criar um tópico para o sensor
         if topic not in topic_subscriptions and action == 'subscribe':
             topic_subscriptions[topic] = set()
             print(f'O sensor se inscreveu no tópico "{topic}"')
 
         # Ação de enviar mensagem do sensor
-        elif topic and action == 'LIGAR':
+        elif topic and action == 'Ligar':
             print(topic_subscriptions)
             if topic not in topic_subscriptions:
                 topic_subscriptions[topic] = set()

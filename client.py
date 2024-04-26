@@ -18,7 +18,7 @@ message_queue = Queue()
 # Função para se inscrever em um tópico
 def subscribe_to_topic(topic):
     addr = socket.gethostbyname(socket.gethostname())  # Obtém o endereço IP do cliente
-    port = CLIENT_PORT  # Obtém a porta do cliente
+    port = CLIENT_PORT  
     response = requests.post(f'{BROKER_URL}/subscribe', json={'topic': topic, 'port': port})
     if response.status_code == 200:
         print(f'Inscrito no tópico "{topic}" com sucesso')
@@ -28,12 +28,22 @@ def subscribe_to_topic(topic):
 
 
 # Função para ligar o sensor via API do broker
-def turn_on_sensor_via_api():
-    response = requests.post(f'{BROKER_URL}/turn_on_sensor')
+def ligar_sensor(topic):
+    response = requests.post(f'{BROKER_URL}/ligar_sensor', json={'topic': topic})
     if response.status_code == 200:
         print('Solicitação para ligar o sensor enviada ao broker')
     else:
         print('Erro ao solicitar ligar o sensor ao broker')
+
+
+# Função para desligar o sensor via API do broker
+def desligar_sensor():
+    response = requests.post(f'{BROKER_URL}/desligar_sensor')
+    if response.status_code == 200:
+        print('Solicitação para desligar o sensor enviada ao broker')
+    else:
+        print('Erro ao solicitar desligar o sensor ao broker')
+
 
 # Função para receber mensagens do servidor
 def receive_messages():
@@ -60,8 +70,13 @@ def main_menu():
     if choice == "1":
         topic = input("Digite o nome do tópico: ")
         subscribe_to_topic(topic)
+    
     elif choice == "2":
-        turn_on_sensor_via_api()
+        ligar_sensor()
+
+    elif choice == "3":
+        desligar_sensor()
+    
     elif choice == "4":
         exit()
     else:
