@@ -3,7 +3,7 @@ import json
 import time
 import threading
 
-sensor = {'Nome': 'Sensor de Temperatura', 'Estado': 'Desligado', 'Temperatura': 24}
+sensor = {'Nome': 'Sensor de Umidade', 'Estado': 'Desligado', 'Umidade': 30}
 
 # Configurações do servidor UDP
 UDP_SERVER_IP = 'localhost'
@@ -11,9 +11,8 @@ UDP_SERVER_PORT = 8888
 
 # Configurações do servidor TCP
 TCP_SERVER_IP = 'localhost'
-TCP_SERVER_PORT = 12349
+TCP_SERVER_PORT = 12343
 
-INITIAL_TOPIC = sensor['Nome']
 
 # Criação do socket UDP
 sensor_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -30,14 +29,13 @@ def send_message(topic, content, action):
 
 # Função para simular a leitura de dados do sensor
 def ler_dados_sensor():
-    temperatura = sensor['Temperatura']
+    umidade = sensor['Umidade']
     while sensor['Estado'] == 'Ligado':
         # Formata os dados para envio
-        dados = f'Temperatura: {temperatura:.2f}°C'
-        send_message(INITIAL_TOPIC, dados, 'Ligar')
-        temperatura += 3.1
-        temperatura = round(temperatura, 2)
-        sensor['Temperatura'] = temperatura
+        dados = f'Umidade: {umidade}%'
+        send_message(sensor['Nome'], dados, 'Ligar')
+        umidade += 1
+        sensor['Umidade'] = umidade
         time.sleep(2)
 
 # Função para lidar com conexões TCP
@@ -67,19 +65,19 @@ def desligar_sensor():
         sensor['Estado'] = 'Desligado'
         print("Sensor desligado.")
 
-# Função para alterar a temperatura manualmente
-def alterar_temperatura():
-    nova_temperatura = float(input("Digite a nova temperatura: "))
-    sensor['Temperatura'] = nova_temperatura
-    print("Temperatura alterada para:", nova_temperatura)
+# Função para alterar a umidade manualmente
+def alterar_umidade():
+    nova_umidade = float(input("Digite a nova umidade: "))
+    sensor['Umidade'] = nova_umidade
+    print("Umidade alterada para:", nova_umidade)
 
 # Função para se inscrever no tópico especificado
 def subscribe_to_topic(topic):
-    message = {'action': 'subscribe', 'topic': topic, 'ip': TCP_SERVER_IP, 'porta': TCP_SERVER_PORT} # passa a porta para receber comando tcp
+    message = {'action': 'subscribe', 'topic': topic, 'ip': TCP_SERVER_IP, 'porta': TCP_SERVER_PORT} 
     sensor_socket.sendto(json.dumps(message).encode(), (UDP_SERVER_IP, UDP_SERVER_PORT))
 
 # Inscreve o sensor no tópico inicial
-subscribe_to_topic(INITIAL_TOPIC)
+subscribe_to_topic(sensor['Nome'])
 
 # Thread para lidar com conexões TCP
 def tcp_server_thread():
@@ -96,7 +94,7 @@ while True:
     print("Opções:")
     print("1. Ligar sensor")
     print("2. Desligar sensor")
-    print("3. Alterar temperatura manualmente")
+    print("3. Alterar umidade manualmente")
     print("4. Sair")
     opcao = input("Digite o número correspondente à opção desejada: ")
     if opcao == '1':
@@ -104,7 +102,7 @@ while True:
     elif opcao == '2':
         desligar_sensor()
     elif opcao == '3':
-        alterar_temperatura()
+        alterar_umidade()
     elif opcao == '4':
         break
     else:

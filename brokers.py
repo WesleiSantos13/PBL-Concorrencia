@@ -6,10 +6,11 @@ import threading
 # Configurações do servidor UDP
 SERVER_IP = 'localhost'
 SERVER_PORT = 8888
-SENSOR_COMMAND_PORT = 12348
 
 # Dicionário para armazenar as inscrições dos clientes em cada tópico
 topic_subscriptions = {}
+
+# Armazena as informaçoes dos sensores
 endereco_disp = {}
 
 # Criação do socket UDP
@@ -38,12 +39,42 @@ def subscribe_to_topic():
     else:
         return jsonify({'error': 'Tópico ou porta não fornecidos'}), 400
 
+@app.route('/exibir_topicos', methods=['GET'])
+def exibir_topicos():
+    topics = list(topic_subscriptions.keys())
+    return jsonify({'topics': topics})
 
 
-# Rota para ligar o sensor
-@app.route('/alterar_estado', methods=['PUT'])
+# Rota para ligar o sensor via TCP
+@app.route('/ligar_sensor', methods=['POST'])
 def ligar_sensor():
+    data = request.get_json()
     topic = data.get('topic')
+    SENSOR_TCP_IP = endereco_disp[topic][0]
+    SENSOR_TCP_PORT = endereco_disp[topic][1]
+
+    try:
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SENSOR_TCP_IP, SENSOR_TCP_PORT))
+        client_socket.send('Ligar'.encode())
+        client_socket.close()
+        return jsonify({'message': 'Comando para ligar o sensor enviado via TCP'})
+    except Exception as e:
+        return jsonify({'error': f'Erro ao ligar o sensor via TCP: {str(e)}'}), 500
+
+# Rota para desligar o sensor via TCP
+@app.route('/desligar_sensor', methods=['POST'])
+def desligar_sensor():
+    SENSOR_TCP_IP = 'localhost'
+    SENSOR_TCP_PORT = 12349
+    try:
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SENSOR_TCP_IP, SENSOR_TCP_PORT))
+        client_socket.send('Desligar'.encode())
+        client_socket.close()
+        return jsonify({'message': 'Comando para desligar o sensor enviado via TCP'})
+    except Exception as e:
+        return jsonify({'error': f'Erro ao desligar o sensor via TCP: {str(e)}'}), 500
         
 
 
@@ -54,11 +85,17 @@ def process_message(data, addr):
         topic = message.get('topic')
         content = message.get('content')
         action = message.get('action')
+        ip = message.get('ip')
+        porta = message.get('porta')
 
         # Ação de criar um tópico para o sensor
         if topic not in topic_subscriptions and action == 'subscribe':
             topic_subscriptions[topic] = set()
             print(f'O sensor se inscreveu no tópico "{topic}"')
+            # Salva a porta e o ip para enviar cmd tcp
+            endereco_disp[topic]=(ip, porta)
+            print(endereco_disp)
+            
 
         # Ação de enviar mensagem do sensor
         elif topic and action == 'Ligar':
