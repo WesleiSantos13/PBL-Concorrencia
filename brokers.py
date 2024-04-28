@@ -52,7 +52,7 @@ def ligar_sensor():
     topic = data.get('topic')
     SENSOR_TCP_IP = endereco_disp[topic][0]
     SENSOR_TCP_PORT = endereco_disp[topic][1]
-
+# Colar uma verificação para o sensor não ser ligado mais de uma vez
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SENSOR_TCP_IP, SENSOR_TCP_PORT))
@@ -90,6 +90,22 @@ def verificar_inscricao():
     else:
         return jsonify({'inscrito': False}), 200
 
+# Rota para desinscrever o cliente do tópico
+@app.route('/desinscrever', methods=['POST'])
+def desinscrever_topico():
+    data = request.get_json()
+    topic = data.get('topic')
+    ip = data.get('ip')
+    porta = data.get('porta')
+    if topic in topic_subscriptions and (ip, porta) in topic_subscriptions[topic]:
+        topic_subscriptions[topic].remove((ip, porta))
+        print(f'Cliente {ip}:{porta} se desinscreveu no tópico "{topic}"')
+        return jsonify({'message': f'Cliente desenscrito do tópico "{topic}" realizada com sucesso'}), 200
+    else:
+        if topic not in topic_subscriptions:
+            return jsonify({f'message': 'Tópico não existe'}), 200    
+        elif (ip, porta) in topic_subscriptions[topic]:
+            return jsonify({f'message': 'O endereço desse cliente não está registrado no tópico'}), 200
 
 # Função para processar as mensagens recebidas e encaminhá-las aos clientes inscritos
 def process_message(data, addr):

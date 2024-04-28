@@ -46,8 +46,11 @@ def verificar_inscricao(topic, ip, porta):
 
 
 # Função para desinscrever do topico
-def desinscrever_topic(topic):
-    pass
+def desinscrever_topic(topic, ip, porta):
+    response = requests.post(f'{BROKER_URL}/desinscrever', json={'topic': topic, 'ip': ip, 'porta': porta})
+    message = response.json()['message']
+    print(message)
+
 
 # Função para ligar o sensor via API do broker
 def ligar_sensor(topic):
@@ -124,7 +127,7 @@ def main_menu():
     
     elif choice == "2":
         topic = input("Digite o nome do tópico que deseja desinscrever: ")
-        desinscrever_topic(topic)
+        desinscrever_topic(topic, CLIENT_IP, CLIENT_PORT)
         
     elif choice == "3":
         topic = input("Digite o nome do tópico para ligar o sensor: ")
