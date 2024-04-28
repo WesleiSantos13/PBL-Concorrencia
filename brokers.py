@@ -26,15 +26,15 @@ app = Flask(__name__)
 def subscribe_to_topic():
     data = request.get_json()
     topic = data.get('topic')
-    addr = request.remote_addr  # Obtém o endereço IP do cliente
+    ip = data.get('ip') # Obtém o endereço IP do cliente
     port = data.get('port')  # Obtém a porta do cliente do corpo da solicitação JSON
     print(port)
     if topic and port:
         if topic not in topic_subscriptions:
             topic_subscriptions[topic] = set()
         # Armazena uma tupla contendo o endereço IP e a porta do cliente
-        topic_subscriptions[topic].add((addr, port))
-        print(f'Cliente {addr}:{port} se inscreveu no tópico "{topic}"')
+        topic_subscriptions[topic].add((ip, port))
+        print(f'Cliente {ip}:{port} se inscreveu no tópico "{topic}"')
         return jsonify({'message': f'Inscrição no tópico "{topic}" realizada com sucesso'})
     else:
         return jsonify({'error': 'Tópico ou porta não fornecidos'}), 400
@@ -65,8 +65,10 @@ def ligar_sensor():
 # Rota para desligar o sensor via TCP
 @app.route('/desligar_sensor', methods=['POST'])
 def desligar_sensor():
-    SENSOR_TCP_IP = 'localhost'
-    SENSOR_TCP_PORT = 12349
+    data = request.get_json()
+    topic = data.get('topic')
+    SENSOR_TCP_IP = endereco_disp[topic][0]
+    SENSOR_TCP_PORT = endereco_disp[topic][1]
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SENSOR_TCP_IP, SENSOR_TCP_PORT))
@@ -75,7 +77,18 @@ def desligar_sensor():
         return jsonify({'message': 'Comando para desligar o sensor enviado via TCP'})
     except Exception as e:
         return jsonify({'error': f'Erro ao desligar o sensor via TCP: {str(e)}'}), 500
-        
+
+# Rota para verificar se o cliente está registrado no tópico
+@app.route('/verificar_inscricao', methods=['GET'])
+def verificar_inscricao():
+    data = request.get_json()
+    topic = data.get('topic')
+    ip = data.get('ip')
+    porta = data.get('porta')
+    if topic in topic_subscriptions and (ip, porta) in topic_subscriptions[topic]:
+        return jsonify({'inscrito': True}), 200
+    else:
+        return jsonify({'inscrito': False}), 200
 
 
 # Função para processar as mensagens recebidas e encaminhá-las aos clientes inscritos

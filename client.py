@@ -7,25 +7,47 @@ from queue import Queue
 # Configurações
 BROKER_URL = 'http://localhost:5000'
 CLIENT_PORT = 12340
+CLIENT_IP = '127.0.0.1'
 
 # Criando socket UDP para receber mensagens
 receive_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-receive_socket.bind(('localhost', CLIENT_PORT))
+receive_socket.bind((CLIENT_IP, CLIENT_PORT))
 
 # Criando uma fila para passar as mensagens do thread de recebimento para o thread principal
 message_queue = Queue()
 
 # Função para se inscrever em um tópico
 def subscribe_to_topic(topic):
-    addr = socket.gethostbyname(socket.gethostname())  # Obtém o endereço IP do cliente
+    ip = CLIENT_IP
     port = CLIENT_PORT  
-    response = requests.post(f'{BROKER_URL}/subscribe', json={'topic': topic, 'port': port})
+    response = requests.post(f'{BROKER_URL}/subscribe', json={'topic': topic, 'port': port, 'ip': ip})
     if response.status_code == 200:
         print(f'Inscrito no tópico "{topic}" com sucesso')
     else:
         print('Erro ao se inscrever no tópico')
 
 
+def verificar_inscricao(topic, ip, porta):
+    try:
+        # Envia a solicitação GET para a rota
+        response = requests.get(f'{BROKER_URL}/verificar_inscricao', json={'topic': topic, 'ip': ip, 'porta': porta})
+        if response.status_code == 200:
+            return response.json()
+        else:
+            # Se a resposta não for bem-sucedida, imprime o código de status e retorna False
+            print(f"Erro: {response.status_code}")
+            return False
+    except requests.exceptions.RequestException as e:
+        # Em caso de erro de conexão, imprime o erro e retorna False
+        print(f"Erro de conexão: {e}")
+        return False
+
+
+
+
+# Função para desinscrever do topico
+def desinscrever_topic(topic):
+    pass
 
 # Função para ligar o sensor via API do broker
 def ligar_sensor(topic):
@@ -82,29 +104,53 @@ def display_messages():
 def main_menu():
     print("=== Menu ===")
     print("1. Inscrever-se em um tópico")
-    print("2. Ligar sensor")
-    print("3. Desligar sensor")
-    print("4. Sair")
+    print("2. Desinscrever-se em um tópico")
+    print("3. Ligar sensor")
+    print("4. Desligar sensor")
+    print('5. Exibir Tópicos')
+    print("6. Sair")
 
     choice = input("Escolha uma opção: ")
     if choice == "1":
         topicos = exibir_topicos()
         print(topicos)
-        cod = input("Digite o cod do tópico: ")
-        for chave in topicos:
-            if cod ==chave:
-                subscribe_to_topic(topicos[cod])
+        if topicos == {}:
+            print('Não existe tópicos registrados')
+        else:
+            cod = input("Digite o cod do tópico: ")
+            for chave in topicos:
+                if cod ==chave:
+                    subscribe_to_topic(topicos[cod])
     
     elif choice == "2":
-        topic = input("Digite o nome do tópico para ligar o sensor: ")
-        ligar_sensor(topic)
-
+        topic = input("Digite o nome do tópico que deseja desinscrever: ")
+        desinscrever_topic(topic)
+        
     elif choice == "3":
-        topic = input("Digite o nome do tópico para desligar o sensor: ")
-        desligar_sensor(topic)
-    
+        topic = input("Digite o nome do tópico para ligar o sensor: ")
+        # Chama a função para verificar a inscrição do cliente no tópico
+        dic = verificar_inscricao(topic, CLIENT_IP, CLIENT_PORT)
+        if dic['inscrito']:
+            ligar_sensor(topic)
+        else:
+            print("Você precisa estar inscrito no tópico para ligar o sensor.")
+       
+
     elif choice == "4":
+        topic = input("Digite o nome do tópico para desligar o sensor: ")
+        # Chama a função para verificar a inscrição do cliente no tópico
+        dic = verificar_inscricao(topic, CLIENT_IP, CLIENT_PORT)
+        if dic['inscrito']:
+            desligar_sensor(topic)
+        else:
+            print("Você precisa estar inscrito no tópico para desligar o sensor.")
+
+    elif choice == "5":
+        print(exibir_topicos())
+
+    elif choice == "6":
         exit()
+
     else:
         print("Opção inválida.")
 
