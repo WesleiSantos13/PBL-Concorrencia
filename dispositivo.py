@@ -65,6 +65,7 @@ def ligar_sensor():
 def desligar_sensor():
     if sensor['Estado'] == 'Ligado':
         sensor['Estado'] = 'Desligado'
+        send_message(INITIAL_TOPIC, None, 'Desligar')
         print("Sensor desligado.")
 
 # Função para alterar a temperatura manualmente

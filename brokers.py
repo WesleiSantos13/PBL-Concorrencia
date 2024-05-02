@@ -26,69 +26,16 @@ app = Flask(__name__)
 def subscribe_to_topic():
     data = request.get_json()
     topic = data.get('topic')
-    ip = data.get('ip') # Obtém o endereço IP do cliente
-    port = data.get('port')  # Obtém a porta do cliente do corpo da solicitação JSON
-    print(port)
-    if topic and port:
-        if topic not in topic_subscriptions:
-            topic_subscriptions[topic] = set()
-        # Armazena uma tupla contendo o endereço IP e a porta do cliente
-        topic_subscriptions[topic].add((ip, port))
+    ip = data.get('ip') 
+    port = data.get('port') 
+    
+    if topic:
+        topic_subscriptions[topic]['clients'][(ip, port)] = []
         print(f'Cliente {ip}:{port} se inscreveu no tópico "{topic}"')
         return jsonify({'message': f'Inscrição no tópico "{topic}" realizada com sucesso'})
     else:
         return jsonify({'error': 'Tópico ou porta não fornecidos'}), 400
-
-@app.route('/exibir_topicos', methods=['GET'])
-def exibir_topicos():
-    topics = list(topic_subscriptions.keys())
-    return jsonify({'topics': topics})
-
-
-# Rota para ligar o sensor via TCP
-@app.route('/ligar_sensor', methods=['POST'])
-def ligar_sensor():
-    data = request.get_json()
-    topic = data.get('topic')
-    SENSOR_TCP_IP = endereco_disp[topic][0]
-    SENSOR_TCP_PORT = endereco_disp[topic][1]
-# Colar uma verificação para o sensor não ser ligado mais de uma vez
-    try:
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect((SENSOR_TCP_IP, SENSOR_TCP_PORT))
-        client_socket.send('Ligar'.encode())
-        client_socket.close()
-        return jsonify({'message': 'Comando para ligar o sensor enviado via TCP'})
-    except Exception as e:
-        return jsonify({'error': f'Erro ao ligar o sensor via TCP: {str(e)}'}), 500
-
-# Rota para desligar o sensor via TCP
-@app.route('/desligar_sensor', methods=['POST'])
-def desligar_sensor():
-    data = request.get_json()
-    topic = data.get('topic')
-    SENSOR_TCP_IP = endereco_disp[topic][0]
-    SENSOR_TCP_PORT = endereco_disp[topic][1]
-    try:
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect((SENSOR_TCP_IP, SENSOR_TCP_PORT))
-        client_socket.send('Desligar'.encode())
-        client_socket.close()
-        return jsonify({'message': 'Comando para desligar o sensor enviado via TCP'})
-    except Exception as e:
-        return jsonify({'error': f'Erro ao desligar o sensor via TCP: {str(e)}'}), 500
-
-# Rota para verificar se o cliente está registrado no tópico
-@app.route('/verificar_inscricao', methods=['GET'])
-def verificar_inscricao():
-    data = request.get_json()
-    topic = data.get('topic')
-    ip = data.get('ip')
-    porta = data.get('porta')
-    if topic in topic_subscriptions and (ip, porta) in topic_subscriptions[topic]:
-        return jsonify({'inscrito': True}), 200
-    else:
-        return jsonify({'inscrito': False}), 200
+    
 
 # Rota para desinscrever o cliente do tópico
 @app.route('/desinscrever', methods=['POST'])
@@ -97,8 +44,10 @@ def desinscrever_topico():
     topic = data.get('topic')
     ip = data.get('ip')
     porta = data.get('porta')
-    if topic in topic_subscriptions and (ip, porta) in topic_subscriptions[topic]:
-        topic_subscriptions[topic].remove((ip, porta))
+    
+    # O cliente está inscrito no tópico e o tópico existe
+    if topic in topic_subscriptions and (ip, porta) in topic_subscriptions[topic]['clients']:
+        del topic_subscriptions[topic]['clients'][(ip, porta)]
         print(f'Cliente {ip}:{porta} se desinscreveu no tópico "{topic}"')
         return jsonify({'message': f'Cliente desenscrito do tópico "{topic}" realizada com sucesso'}), 200
     else:
@@ -106,6 +55,89 @@ def desinscrever_topico():
             return jsonify({f'message': 'Tópico não existe'}), 200    
         elif (ip, porta) in topic_subscriptions[topic]:
             return jsonify({f'message': 'O endereço desse cliente não está registrado no tópico'}), 200
+
+
+@app.route('/exibir_topicos', methods=['GET'])
+def exibir_topicos():
+    topics = list(topic_subscriptions.keys())
+    return jsonify({'topics': topics})
+
+
+@app.route('/controlar_sensor', methods=['PUT'])
+def controlar_sensor():
+    data = request.get_json()
+    topic = data.get('topic')
+    acao = data.get('acao')  # Ação: 'ligar' ou 'desligar'
+    SENSOR_TCP_IP = endereco_disp[topic][0]
+    SENSOR_TCP_PORT = endereco_disp[topic][1]
+    
+    if topic in topic_subscriptions:
+        try:
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect((SENSOR_TCP_IP, SENSOR_TCP_PORT))
+            
+            if acao == 'ligar' and topic_subscriptions[topic]['state'] != 'Ligado':
+                client_socket.send('Ligar'.encode())
+                #message = 'Sensor ligado'
+            elif acao == 'desligar' and topic_subscriptions[topic]['state'] != 'Desligado':
+                client_socket.send('Desligar'.encode())
+               # message = 'Sensor desligado'
+            else:
+                return jsonify({'error': 'Ação inválida'}), 400
+            
+            client_socket.close()
+            return jsonify({'message': f'Comando para {acao} o sensor enviado via TCP', 'status': topic_subscriptions[topic]['state']})
+        except Exception as e:
+            return jsonify({'error': f'Erro ao {acao} o sensor via TCP: {str(e)}'}), 500
+    else:
+        return jsonify({'message': 'O sensor não existe'})
+
+
+# Rota para verificar se o cliente está registrado no tópico
+@app.route('/verificar_inscricao', methods=['GET'])
+def verificar_inscricao():
+    data = request.get_json()
+    topic = data.get('topic')
+    ip = data.get('ip')
+    porta = data.get('porta')
+    
+    # O cliente está inscrito no tópico e o tópico existe
+    if topic in topic_subscriptions and (ip, porta) in topic_subscriptions[topic]['clients']:
+        return jsonify({'inscrito': True}), 200
+    else:
+        return jsonify({'inscrito': False}), 200
+        
+
+# Rota para o cliente solicitar mensagens de um tópico específico
+@app.route('/get_messages', methods=['GET'])
+def get_messages():
+    data = request.get_json()
+    topic = data.get('topic')
+    ip = data.get('ip')
+    porta = data.get('port')
+    if topic in topic_subscriptions:
+        if topic_subscriptions[topic]['state']== 'Ligado':
+            if topic in topic_subscriptions and (ip, porta) in topic_subscriptions[topic]['clients']:
+                # Obtém as mensagens pendentes para o cliente no tópico especificado
+                messages = topic_subscriptions[topic]['clients'].get((ip, porta), [])
+                # Pega a ultima mensagem
+                if  messages != []:
+                    last_message = messages[-1]
+                # Limpa as mensagens pendentes após obter
+                topic_subscriptions[topic]['clients'][(ip, porta)] = []
+                return jsonify({'messages': last_message})
+            else:
+                return jsonify({'messages': []})  # Sem mensagens pendentes
+        else:
+            return jsonify({'error': 'O sensor está desligado'}), 400
+
+
+# Rota para o cliente saber que o servidor está ativo
+@app.route('/verificacao', methods=['GET'])
+def verificacao():
+    return jsonify({'status': 'ativo'})
+
+
 
 # Função para processar as mensagens recebidas e encaminhá-las aos clientes inscritos
 def process_message(data, addr):
@@ -119,31 +151,32 @@ def process_message(data, addr):
 
         # Ação de criar um tópico para o sensor
         if topic not in topic_subscriptions and action == 'subscribe':
-            topic_subscriptions[topic] = set()
+            topic_subscriptions[topic] = {'clients': {},'state': 'desligado'}
             print(f'O sensor se inscreveu no tópico "{topic}"')
+            
             # Salva a porta e o ip para enviar cmd tcp
             endereco_disp[topic]=(ip, porta)
             print(endereco_disp)
             
 
-        # Ação de enviar mensagem do sensor
         elif topic and action == 'Ligar':
-            print(topic_subscriptions)
-            if topic not in topic_subscriptions:
-                topic_subscriptions[topic] = set()
-            elif topic in topic_subscriptions and topic_subscriptions[topic] != set():  
-                subscribers = topic_subscriptions[topic]
-                for subscriber in subscribers:
-                    server_socket.sendto(json.dumps({'content': content}).encode(), subscriber)
-
-                print(f'Mensagem encaminhada para {len(subscribers)} cliente(s) inscrito(s) no tópico "{topic}"')
+            topic_subscriptions[topic]['state'] = 'Ligado'
+            # Verifica se o tópico está registrado e se há clientes inscritos
+            if topic in topic_subscriptions and topic_subscriptions[topic]:
+                # Adiciona a mensagem pendente à lista de mensagens pendentes para todos os clientes inscritos
+                for client in topic_subscriptions[topic]['clients']:
+                    topic_subscriptions[topic]['clients'][client].append(content)
+                print(f'Mensagem adicionada às mensagens pendentes para o tópico "{topic}"')
             else:
                 print(f'Nenhum cliente inscrito no tópico "{topic}" para encaminhar a mensagem')
+        
+        elif topic and action == 'Desligar':
+            topic_subscriptions[topic]['state'] = 'Desligado'
+
         else:
             print(f'Mensagem recebida de {addr}: {content}')
     except json.JSONDecodeError:
         print(f'Mensagem inválida recebida de {addr}: {data.decode()}')
-
 
 
 # Função para iniciar o servidor Flask em uma thread separada

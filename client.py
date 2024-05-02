@@ -1,20 +1,12 @@
-import threading
 import requests
-import socket
-import json
-from queue import Queue
+import time
+import threading
 
 # Configurações
 BROKER_URL = 'http://localhost:5000'
 CLIENT_PORT = 12340
 CLIENT_IP = '127.0.0.1'
 
-# Criando socket UDP para receber mensagens
-receive_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-receive_socket.bind((CLIENT_IP, CLIENT_PORT))
-
-# Criando uma fila para passar as mensagens do thread de recebimento para o thread principal
-message_queue = Queue()
 
 # Função para se inscrever em um tópico
 def subscribe_to_topic(topic):
@@ -54,7 +46,7 @@ def desinscrever_topic(topic, ip, porta):
 
 # Função para ligar o sensor via API do broker
 def ligar_sensor(topic):
-    response = requests.post(f'{BROKER_URL}/ligar_sensor', json={'topic': topic})
+    response = requests.put(f'{BROKER_URL}/controlar_sensor', json={'topic': topic, 'acao': 'ligar'})
     if response.status_code == 200:
         print('Sensor ligado com sucesso via API do broker')
     else:
@@ -62,7 +54,7 @@ def ligar_sensor(topic):
 
 # Função para desligar o sensor via API do broker
 def desligar_sensor(topic):
-    response = requests.post(f'{BROKER_URL}/desligar_sensor', json={'topic': topic})
+    response = requests.put(f'{BROKER_URL}/controlar_sensor', json={'topic': topic, 'acao': 'desligar'})
     if response.status_code == 200:
         print('Sensor desligado com sucesso via API do broker')
     else:
@@ -90,18 +82,30 @@ def exibir_topicos():
 
 
 
-# Função para receber mensagens do servidor
-def receive_messages():
-    while True:
-        data, addr = receive_socket.recvfrom(1024)
-        message = json.loads(data.decode())
-        message_queue.put(message["content"])  # Adicionando a mensagem à fila
+def get_messages_from_topic(topic, ip, port):
 
-# Função para exibir mensagens recebidas
-def display_messages():
-    while True:
-        message = message_queue.get()  # Obter mensagem da fila
-        print(f'Mensagem recebida do servidor: {message}')
+    # Envia a solicitação GET para o servidor
+    response = requests.get(f'{BROKER_URL}/get_messages', json={'topic': topic, 'ip': ip, 'port': port})
+
+    # Verifica se a solicitação foi bem-sucedida (código de status HTTP 200)
+    if response.status_code == 200:
+        # Obtém as mensagens da resposta
+        messages = response.json().get('messages', [])
+        if messages:
+            print(f'Mensagens recebidas do tópico "{topic}":')
+            #for message in messages:
+            print(messages)
+        else:
+            print(f'Não há mensagens pendentes no tópico "{topic}" para o cliente {ip}:{port}')
+    else:
+        print(f'Erro ao obter mensagens do tópico "{topic}": {response.json()['error']}')
+
+
+def thread_get_messages(event, topic, ip, port):
+    while not event.is_set():
+        get_messages_from_topic(topic, ip, port)
+        time.sleep(4)  # Aguarda 4 segundo antes de buscar mensagens novamente
+
 
 # Menu principal
 def main_menu():
@@ -111,7 +115,9 @@ def main_menu():
     print("3. Ligar sensor")
     print("4. Desligar sensor")
     print('5. Exibir Tópicos')
-    print("6. Sair")
+    print('6. Exibir menssagem')
+    print("7. Exibir menssagem continuamente")
+    print("8. Sair")
 
     choice = input("Escolha uma opção: ")
     if choice == "1":
@@ -126,47 +132,121 @@ def main_menu():
                     subscribe_to_topic(topicos[cod])
     
     elif choice == "2":
-        topic = input("Digite o nome do tópico que deseja desinscrever: ")
-        desinscrever_topic(topic, CLIENT_IP, CLIENT_PORT)
+        topicos = exibir_topicos()
+        print(topicos)
+        if topicos == {}:
+            print('Não existe tópicos registrados')
+        else:
+            cod = input("Digite o cod do tópico: ")
+            for chave in topicos:
+                if cod ==chave:
+                    desinscrever_topic(topicos[cod], CLIENT_IP, CLIENT_PORT)
         
     elif choice == "3":
-        topic = input("Digite o nome do tópico para ligar o sensor: ")
-        # Chama a função para verificar a inscrição do cliente no tópico
-        dic = verificar_inscricao(topic, CLIENT_IP, CLIENT_PORT)
-        if dic['inscrito']:
-            ligar_sensor(topic)
+        topicos = exibir_topicos()
+        print(topicos)
+        if topicos == {}:
+            print('Não existe tópicos registrados')
         else:
-            print("Você precisa estar inscrito no tópico para ligar o sensor.")
+            cod = input("Digite o cod do tópico: ")
+            for chave in topicos:
+                if cod == chave:
+                    # Chama a função para verificar a inscrição do cliente no tópico
+                    dic = verificar_inscricao(topicos[cod], CLIENT_IP, CLIENT_PORT)
+                    if dic['inscrito']:
+                        ligar_sensor(topicos[cod])
+                    else:
+                        print("Você precisa estar inscrito no tópico para ligar o sensor.")
        
 
     elif choice == "4":
-        topic = input("Digite o nome do tópico para desligar o sensor: ")
-        # Chama a função para verificar a inscrição do cliente no tópico
-        dic = verificar_inscricao(topic, CLIENT_IP, CLIENT_PORT)
-        if dic['inscrito']:
-            desligar_sensor(topic)
+        topicos = exibir_topicos()
+        print(topicos)
+        if topicos == {}:
+            print('Não existe tópicos registrados')
         else:
-            print("Você precisa estar inscrito no tópico para desligar o sensor.")
+            cod = input("Digite o cod do tópico: ")
+            for chave in topicos:
+                if cod == chave:
+                    # Chama a função para verificar a inscrição do cliente no tópico
+                    dic = verificar_inscricao(topicos[cod], CLIENT_IP, CLIENT_PORT)
+                    if dic['inscrito']:
+                        desligar_sensor(topicos[cod])
+                    else:
+                        print("Você precisa estar inscrito no tópico para desligar o sensor.")
 
     elif choice == "5":
         print(exibir_topicos())
+        
 
     elif choice == "6":
+        topicos = exibir_topicos()
+        print(topicos)
+        if topicos == {}:
+            print('Não existe tópicos registrados')
+        else:
+            cod = input("Digite o cod do tópico: ")
+            for chave in topicos:
+                if cod == chave:
+                    dic = verificar_inscricao(topicos[cod], CLIENT_IP, CLIENT_PORT)
+                    if dic['inscrito']:
+                        get_messages_from_topic(topicos[cod], CLIENT_IP, CLIENT_PORT)
+                    else:
+                        print("Você precisa estar inscrito no tópico para receber mensagens.")
+
+    elif choice == "7":
+        topicos = exibir_topicos()
+        print(topicos)
+        if topicos == {}:
+            print('Não existe tópicos registrados')
+        else:
+            cod = input("Digite o cod do tópico: ")
+            for chave in topicos:
+                if cod == chave:
+                    dic = verificar_inscricao(topicos[cod], CLIENT_IP, CLIENT_PORT)
+                    if dic['inscrito']:
+                        # Cria um objeto Event
+                        stop_event = threading.Event()
+                        # Cria e inicia um novo thread para buscar mensagens continuamente
+                        thread = threading.Thread(target=thread_get_messages, args=(stop_event, topicos[cod], CLIENT_IP, CLIENT_PORT))
+                        thread.start()
+                        input("Pressione Enter para parar o sistema de mensagens continuas.")
+                        # Sinaliza o evento para parar o loop no thread
+                        stop_event.set()
+                    else:
+                        print("Você precisa estar inscrito no tópico para receber mensagens.")
+
+    elif choice == "8":
         exit()
 
     else:
         print("Opção inválida.")
 
+# Função para verificar se o servidor está ativo
+def servidor():
+    try:
+        response = requests.get(f'{BROKER_URL}/verificacao')
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('status') == 'ativo':
+                return True
+            else:
+                print("O servidor não está ativo.")
+                return False
+        else:
+            print("Erro ao verificar o status do servidor:", response.status_code)
+            return False
+    except requests.exceptions.RequestException as e:
+        print("Erro de conexão:", e)
+        return False
+ 
 
-if __name__ == "__main__":
-    # Iniciando threads para receber mensagens e exibir mensagens
-    receive_thread = threading.Thread(target=receive_messages)
-    receive_thread.daemon = True
-    receive_thread.start()
+if __name__ == "__main__":    
+    # Verifica se o servidor está ativo
+    if servidor():
+        # Inicia o cliente apenas se o servidor estiver ativo
+        while True:
+            main_menu()
+    else:
+        print("O servidor não está respondendo. Verifique se está ativo e tente novamente.")
 
-    display_thread = threading.Thread(target=display_messages)
-    display_thread.daemon = True
-    display_thread.start()
-    # Loop do menu principal
-    while True:
-        main_menu()
