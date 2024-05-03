@@ -1,19 +1,74 @@
 # PBL-Concorrencia
 
+#                ##### ####                  COMO USAR O PROGRAMA   #############  ##########   ########     ###############
+#   Configuração Inicial
+    
+    O sistema tem como código fonte a linguagem python, por isso é necesário que o ambiente que irá rodar o programa tenha o python instalado.
+        Link para baixar o python nos diferentes sistemas operacionais: https://www.python.org/downloads/
+    
+    Depois é necessário instalar a API do flask, usando o comando pip do python no prompt de comando:
+        pip install flask
+    
+    E instalar a biblioteca requests, que é responsável pelas solicitacões dos clientes via http. Instale  usando o prompt de comando com:
+        pip install requests
 
-DOCumentar a API
+#    Utilização do Programa #### #####
 
-Comentar codigo e corrigir nome s de rotas e de funções
+# Sensor
+O sensor é responsável por enviar informações de temperatura para o servidor.
 
-Corrijir as relações entre as funcoes de clientes e broker
+Ativação do Sensor: Execute o arquivo sensor.py utilizando Python. Isso iniciará o sensor e o conectará ao servidor para envio de dados.
+Desativação do Sensor: Basta fechar a janela ou interromper a execução do programa para desativar o sensor.
+ # Funcionalidades do sensor
 
-exibir os topicos que ele está inscrito
+   * 1. Ligar o Sensor:
+    Selecione a opção "1" para ligar o sensor de temperatura.
+    O sensor começará a enviar dados de temperatura para o servidor.
+   
+   * 2. Desligar o Sensor:
+    Selecione a opção "2" para desligar o sensor de temperatura.
+    O sensor interromperá o envio de dados de temperatura para o servidor.
+    
+   * 3. Alterar Temperatura Manualmente:
+    Selecione a opção "3" para alterar manualmente a temperatura simulada pelo sensor.
+    Insira a nova temperatura desejada quando solicitado.
+   
+   * 4. Sair do Programa:
+    Selecione a opção "4" para sair do programa e encerrar a execução.
 
-O controle deve selecionar o dispositivo, para poder ligar
+# Servidor
+    O servidor é responsável por gerenciar as conexões entre os clientes e os sensores.
+    Iniciar o Servidor: Execute o arquivo servidor.py utilizando Python. Isso iniciará o servidor e estará pronto para aceitar conexões de clientes e sensores.
 
-O cliente dá erro se executar sem o broker ligado ver isso aindaaaaa             OK
+# Cliente
+  O cliente é responsável por interagir com o servidor, permitindo que os usuários inscrevam-se em tópicos, recebam mensagens e controlem os sensores.
+  Iniciar o Cliente: Execute o arquivo cliente.py utilizando Python. Isso iniciará o cliente e exibirá um menu interativo com as opções disponíveis.
+  # Funcionalidades do cliente:
+    1. Inscrever-se em um tópico. 
+        Nessa opção o cliente se registra em topico para receber mensagem do sensor, ele só pode se inscrever em um tópico se o sensor registrar um topico no servidor para encaminhar as mensagens.
+        
+    2. Desinscrever-se de um tópico.
+        Nessa opção o cliente apaga seu registro do topico pelo qual o sensor envia mensagens, então o cliente para de receber dados do sensor selecionado
 
-O cliente só pode receber mensagem de um sensor por vez
+    3. Ligar um sensor.
+        Só depois de inscrito no topico correspondente ao sensor, o cliente pode pedir para o servidor ligar o sensor 
+        Nessa funcionalidade o cliente pode ligar o sensor, solicitando ao servidor para ligar
+        As mensagens enviadas ficarão sendo armazenadas na lista de mensagens pendentes do cliente
+        
+    4. Desligar um sensor.
+        Só depois de inscrito no topico correspondente ao sensor, o cliente pode pedir para o servidor desligar o sensor
+        Nessa funcionalidade o cliente pode desligar o sensor, solicitando ao servidor para desligar
+        As mensagens enviadas deixarão de ser armazenadas na lista de mensagens pendentes do cliente
+   
+    5. Exibir tópicos disponíveis.
+        Exibe os topicos criados pelos sensores
+
+    6. Exibir mensagens de um tópico.
+        Nessa funcionalidade o cliente pode receber as mensagens que estão pendentes em sua lista de mensagens pendentes, tudo isso por topico
+    7. Exibir mensagens de um tópico continuamente.
+        Essa opção exibe as mensagens pendentes continuamente
+    8. Sair.
+
 
 # ################################################# RELATÓRIO ##############################################################
 
