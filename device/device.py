@@ -112,6 +112,7 @@ while True:
     if opcao == '0':   
         create_topic(NAME_TOPIC)
         device['Registrado'] = True
+
         print(f"Tópico {NAME_TOPIC} criado com sucesso")
 
     elif opcao == '1' and device['Registrado']:
