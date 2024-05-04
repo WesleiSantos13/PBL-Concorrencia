@@ -14,15 +14,69 @@ def subscribe_to_topic(topic):
     port = CLIENT_PORT  
     response = requests.post(f'{BROKER_URL}/subscribe', json={'topic': topic, 'port': port, 'ip': ip})
     if response.status_code == 200:
-        print(f'Inscrito no tópico "{topic}" com sucesso')
+        print(response.json()['message'])
     else:
-        print('Erro ao se inscrever no tópico')
+        print(response.json()['error'])
+
+
+# Função para desinscrever do topico
+def unsubscribe_to_topic(topic):
+    ip = CLIENT_IP
+    port = CLIENT_PORT
+    response = requests.post(f'{BROKER_URL}/unsubscribe', json={'topic': topic, 'ip': ip, 'port': port})
+    if response.status_code == 200:
+        print(response.json()['message'])
+    else:
+        print(response.json()['error'])  
+
+
+
+def exibir_topicos():
+    
+    try:
+        response = requests.get(f'{BROKER_URL}/display_topics')
+        if response.status_code == 200:  # Verifica se a solicitação foi bem-sucedida
+            dic={}
+            data = response.json()  # Converte a resposta para JSON
+            topics = data.get('topics', [])  # Obtém a lista de tópicos
+            for c in range(0, len(topics)):
+                chave = c+1
+                dic[str(chave)]=topics[c]
+            
+            return dic
+        else:
+            print(f"Erro ao obter tópicos: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Erro de conexão: {e}")
+
+
+# Função para ligar o sensor via API do broker
+def ligar_sensor(topic):
+    response = requests.put(f'{BROKER_URL}/control_device', json={'topic': topic, 'acao': 'ligar'})
+    if response.status_code == 200:
+        print('Sensor ligado com sucesso via API do broker')
+    else:
+        print('Erro ao ligar o sensor via API do broker')
+
+
+
+
+
+# Função para desligar o sensor via API do broker
+def desligar_sensor(topic):
+    response = requests.put(f'{BROKER_URL}/control_device', json={'topic': topic, 'acao': 'desligar'})
+    if response.status_code == 200:
+        print('Sensor desligado com sucesso via API do broker')
+    else:
+        print('Erro ao desligar o sensor via API do broker')
+
+
 
 
 def verificar_inscricao(topic, ip, porta):
     try:
         # Envia a solicitação GET para a rota
-        response = requests.get(f'{BROKER_URL}/verificar_inscricao', json={'topic': topic, 'ip': ip, 'porta': porta})
+        response = requests.get(f'{BROKER_URL}/check_registration', json={'topic': topic, 'ip': ip, 'porta': porta})
         if response.status_code == 200:
             return response.json()
         else:
@@ -37,47 +91,6 @@ def verificar_inscricao(topic, ip, porta):
 
 
 
-# Função para desinscrever do topico
-def desinscrever_topic(topic, ip, porta):
-    response = requests.post(f'{BROKER_URL}/desinscrever', json={'topic': topic, 'ip': ip, 'porta': porta})
-    message = response.json()['message']
-    print(message)
-
-
-# Função para ligar o sensor via API do broker
-def ligar_sensor(topic):
-    response = requests.put(f'{BROKER_URL}/controlar_sensor', json={'topic': topic, 'acao': 'ligar'})
-    if response.status_code == 200:
-        print('Sensor ligado com sucesso via API do broker')
-    else:
-        print('Erro ao ligar o sensor via API do broker')
-
-# Função para desligar o sensor via API do broker
-def desligar_sensor(topic):
-    response = requests.put(f'{BROKER_URL}/controlar_sensor', json={'topic': topic, 'acao': 'desligar'})
-    if response.status_code == 200:
-        print('Sensor desligado com sucesso via API do broker')
-    else:
-        print('Erro ao desligar o sensor via API do broker')
-
-
-def exibir_topicos():
-    
-    try:
-        response = requests.get(f'{BROKER_URL}/exibir_topicos')
-        if response.status_code == 200:  # Verifica se a solicitação foi bem-sucedida
-            dic={}
-            data = response.json()  # Converte a resposta para JSON
-            topics = data.get('topics', [])  # Obtém a lista de tópicos
-            for c in range(0, len(topics)):
-                chave = c+1
-                dic[str(chave)]=topics[c]
-            
-            return dic
-        else:
-            print(f"Erro ao obter tópicos: {response.status_code}")
-    except requests.exceptions.RequestException as e:
-        print(f"Erro de conexão: {e}")
 
 
 
@@ -101,10 +114,29 @@ def get_messages_from_topic(topic, ip, port):
         print(f'Erro ao obter mensagens do tópico "{topic}": {response.json()['error']}')
 
 
+
+
 def thread_get_messages(event, topic, ip, port):
     while not event.is_set():
         get_messages_from_topic(topic, ip, port)
         time.sleep(4)  # Aguarda 4 segundo antes de buscar mensagens novamente
+
+
+# Função para de escolha de topico
+def option_topic(topics):
+    print(topics)    
+    # Se não existir tópicos
+    if topics == {}:
+        print('Não existe tópicos registrados')
+    else:                                                 
+        cod = input("Digite o cod do tópico: ")
+        for key in topics:
+            if cod == key:
+                # Se encontrou o codigo digitado como chave do dicionário
+                return (True, cod) # Retorna uma tupla com a confirmação e o codigo do topico
+    return (False, None)
+
+
 
 
 # Menu principal
@@ -121,26 +153,28 @@ def main_menu():
 
     choice = input("Escolha uma opção: ")
     if choice == "1":
-        topicos = exibir_topicos()
-        print(topicos)
-        if topicos == {}:
-            print('Não existe tópicos registrados')
+        # Resgata o dicionário de tópicos disponiveis
+        topics = exibir_topicos()
+        # chama a função de opcoes de topicos
+        tupla=option_topic(topics)
+        # Se a opção for válida
+        if tupla[0]:
+            subscribe_to_topic(topics[tupla[1]])
         else:
-            cod = input("Digite o cod do tópico: ")
-            for chave in topicos:
-                if cod ==chave:
-                    subscribe_to_topic(topicos[cod])
+            print('Opção inválida')
+
     
     elif choice == "2":
-        topicos = exibir_topicos()
-        print(topicos)
-        if topicos == {}:
-            print('Não existe tópicos registrados')
+        # Resgata o dicionário de tópicos disponiveis
+        topics = exibir_topicos()
+        # chama a função de opcoes de topicos
+        tupla=option_topic(topics)
+        # Se a opção for válida
+        if tupla[0]:
+            unsubscribe_to_topic(topics[tupla[1]])
         else:
-            cod = input("Digite o cod do tópico: ")
-            for chave in topicos:
-                if cod ==chave:
-                    desinscrever_topic(topicos[cod], CLIENT_IP, CLIENT_PORT)
+            print('Opção inválida')
+                    
         
     elif choice == "3":
         topicos = exibir_topicos()
@@ -243,10 +277,10 @@ def servidor():
 
 if __name__ == "__main__":    
     # Verifica se o servidor está ativo
-    if servidor():
+    #if servidor():
         # Inicia o cliente apenas se o servidor estiver ativo
         while True:
             main_menu()
-    else:
-        print("O servidor não está respondendo. Verifique se está ativo e tente novamente.")
+   # else:
+     #   print("O servidor não está respondendo. Verifique se está ativo e tente novamente.")
 
