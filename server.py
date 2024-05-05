@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 import threading
 
 # Configurações do servidor UDP para receber mensagem
-SERVER_IP = 'localhost'
+SERVER_IP = "0.0.0.0"
 SERVER_PORT = 8888
 
 # Dicionário para armazenar as os topicos pelos quais os sensores irão mandar as mensagens e as inscrições dos clientes em cada tópico

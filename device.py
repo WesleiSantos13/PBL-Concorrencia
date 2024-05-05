@@ -9,11 +9,11 @@ import threading
 device = {'Nome': 'Sensor de Temperatura', 'Estado': 'Desligado', 'Temperatura': 24, 'Registrado': False}
                                                                                         # Registrado serve para saber se o sensor criou 
 # Configurações do servidor UDP para enviar a temperatura                                       um tópico
-UDP_SERVER_IP = 'localhost'
+UDP_SERVER_IP = '127.0.0.1'
 UDP_SERVER_PORT = 8888
 
 # Configurações do servidor TCP para receber comandos de gerenciamento
-TCP_SERVER_IP = 'localhost'
+TCP_SERVER_IP = '127.0.0.1'
 TCP_SERVER_PORT = 12349
 
 # O nome do tópico que o sensor vai criar possui o mesmo nome do sensor
