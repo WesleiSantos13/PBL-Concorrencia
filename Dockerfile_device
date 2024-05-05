@@ -1,0 +1,11 @@
+# Use a imagem oficial do Python
+FROM python:3.9-slim
+
+# Defina o diretório de trabalho no contêiner
+WORKDIR /app
+
+# Copie o código do dispositivo para o contêiner
+COPY device.py .
+
+# Comando padrão a ser executado quando o contêiner for iniciado
+CMD ["python", "device.py"]

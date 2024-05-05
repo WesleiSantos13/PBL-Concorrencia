@@ -1,0 +1,17 @@
+# Use a imagem oficial do Python
+FROM python:3.9-slim
+
+# Defina o diretório de trabalho no contêiner
+WORKDIR /app
+
+# Copie o código do servidor para o contêiner
+COPY server.py .
+
+# Instale as dependências necessárias
+RUN pip install flask
+
+# Exponha a porta 5000 para acesso externo
+EXPOSE 5000
+
+# Comando padrão a ser executado quando o contêiner for iniciado
+CMD ["python", "server.py"]
