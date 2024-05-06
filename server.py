@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 import threading
 
 # Configurações do servidor UDP para receber mensagem
-SERVER_IP = "0.0.0.0"
+SERVER_IP = '127.0.0.1'
 SERVER_PORT = 8888
 
 # Dicionário para armazenar as os topicos pelos quais os sensores irão mandar as mensagens e as inscrições dos clientes em cada tópico
@@ -200,7 +200,7 @@ def process_message(data, addr):
 
 # Função para iniciar o servidor Flask em uma thread separada
 def start_flask():
-    app.run(debug=True, use_reloader=False)
+    app.run(host='127.0.0.1', debug=True, use_reloader=False)
 
 
 
