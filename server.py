@@ -108,6 +108,15 @@ def controlar_sensor():
                 tcp_socket.close()
                 return jsonify({'message': f'Comando para {action} o sensor enviado via TCP', 'status': topic_subscriptions[topic]['state']})
             
+            # Se ação for alterar os dados que o sensor está mandando
+            elif action == 'alterar':
+                # Captura o dado a ser mandado para atualização
+                change = data.get('change')
+                # Envia em string
+                str_change = str(change)
+                tcp_socket.send(str_change.encode())
+                tcp_socket.close()
+                return jsonify({'message': f'Comando para {action} o sensor enviado via TCP', 'status': topic_subscriptions[topic]['state']})
             else:
                 return jsonify({'error': f'o sensor já está sobre o comando {action}'}), 400
             

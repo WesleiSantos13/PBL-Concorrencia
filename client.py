@@ -58,14 +58,21 @@ def on_device(topic):
     response = requests.put(f'{BROKER_URL}/control_device', json={'topic': topic, 'action': 'ligar', 'ip': ip, 'port': port})
     # Verifica se a solicitação foi bem-sucedida
     if response.status_code == 200:
-        #print('Sensor ligado com sucesso via API do broker')
         print(response.json()['message'])
     else:
-        #print('Erro ao ligar o sensor via API do broker')
         print(response.json()['error']) 
 
 
-       
+# Função para alterar os dados do sensor via API do broker
+def change_data(topic, change):
+    ip = CLIENT_IP
+    port = CLIENT_PORT
+    response = requests.put(f'{BROKER_URL}/control_device', json={'topic': topic, 'action': 'alterar', 'ip': ip, 'port': port, 'change': change})
+    # Verifica se a solicitação foi bem-sucedida
+    if response.status_code == 200:
+        print(response.json()['message'])
+    else:
+        print(response.json()['error'])       
 
 
 # Função para desligar o sensor via API do broker
@@ -122,7 +129,15 @@ def option_topic(topics):
                 return (True, cod) # Retorna uma tupla com a confirmação e o codigo do topico
     return (False, None)
 
-
+# Função para impedir que o usuário digite um dado caractere diferente de numéro
+def try_change():
+    change = ' '
+    while type(change) != float:
+        try:
+            change = float(input('Digite o novo dado '))
+        except ValueError:
+            print('Digite um número!')
+    return change
 
 
 # Menu principal
@@ -131,11 +146,11 @@ def main_menu():
     print("1. Inscrever-se em um tópico")
     print("2. Desinscrever-se de um tópico")
     print("3. Ligar sensor")
-    print("4. Alterar dado do sensor")
+    print("4. Alterar dados do sensor")
     print("5. Desligar sensor")
     print('6. Exibir Tópicos')
-    print('7. Exibir menssagem')
-    print("8. Exibir menssagem continuamente")
+    print('7. Exibir mensagem')
+    print("8. Exibir mensagem continuamente")
     print("9. Sair")
 
     # Inscrever em um tópico
@@ -175,10 +190,22 @@ def main_menu():
         else:
             print('Opção inválida')
                     
-
-       
-    # Desligar sensor
+    # Alterar dados do sensor
     elif choice == "4":
+        # Resgata o dicionário de tópicos disponiveis
+        topics = exibir_topicos()
+        # chama a função de opcoes de topicos
+        tupla=option_topic(topics)
+        # Se a opção for válida
+        if tupla[0]:
+            # Novo dado a ser enviado
+            change = try_change()
+            change_data(topics[tupla[1]], change)
+        else:
+            print('Opção inválida')
+
+    # Desligar sensor
+    elif choice == "5":
         # Resgata o dicionário de tópicos disponiveis
         topics = exibir_topicos()
         # chama a função de opcoes de topicos
@@ -191,11 +218,11 @@ def main_menu():
 
 
     # Exibir tópicos
-    elif choice == "5":
+    elif choice == "6":
         print(exibir_topicos())
         
-
-    elif choice == "6":
+    # Exibir mensagem
+    elif choice == "7":
         # Resgata o dicionário de tópicos disponiveis
         topics = exibir_topicos()
         # chama a função de opcoes de topicos
@@ -205,9 +232,11 @@ def main_menu():
             get_messages_from_topic(topics[tupla[1]])
         else:
             print('Opção inválida')
-                        
 
-    elif choice == "7":
+
+                        
+    # Exibir mensagem continuamente
+    elif choice == "8":
         # Resgata o dicionário de tópicos disponiveis
         topics = exibir_topicos()
         # chama a função de opcoes de topicos
@@ -227,7 +256,7 @@ def main_menu():
                     
         
 
-    elif choice == "8":
+    elif choice == "9":
         exit()
 
     else:
