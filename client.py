@@ -146,7 +146,7 @@ def main_menu():
     print("1. Inscrever-se em um tópico")
     print("2. Desinscrever-se de um tópico")
     print("3. Ligar sensor")
-    print("4. Alterar dados do sensor")
+    print("4. Alterar dados de um sensor")
     print("5. Desligar sensor")
     print('6. Exibir Tópicos')
     print('7. Exibir mensagem')

@@ -61,23 +61,27 @@ Desativação do Sensor: Basta fechar a janela ou interromper a execução do pr
 
     3. Ligar um sensor.
         Só depois de inscrito no topico correspondente ao sensor, o cliente pode pedir para o servidor ligar o sensor 
-        Nessa funcionalidade o cliente pode ligar o sensor, solicitando ao servidor para ligar
+        Nessa funcionalidade o cliente pode ligar o sensor, solicitando ao servidor para ligar, selecionando a opção correspondente ao sensor.
         As mensagens enviadas ficarão sendo armazenadas na lista de mensagens pendentes de TODOS OS CLIENTES que estão inscritos no tópico, até ele consultar as mensagens coma opção 6 ou 7.
-        
-    4. Desligar um sensor.
+   
+    4. Alterar o dado de um sensor.
+        Só depois de inscrito no topico correspondente ao sensor, o cliente pode alterar os dados via API, como alterar a temperatura do sensor de temperatura
+        Nessa funcionalidade o cliente pode alterar os dados do sensor, solicitando ao servidor para alterar, selecionando a opção correspondente ao sensor.
+
+    5. Desligar um sensor.
         Só depois de inscrito no topico correspondente ao sensor, o cliente pode pedir para o servidor desligar o sensor
         Nessa funcionalidade o cliente pode desligar o sensor, solicitando ao servidor para desligar
         As mensagens enviadas deixarão de ser armazenadas na lista de mensagens pendentes do cliente e dos demais que estão no inscritos no tópico.
    
-    5. Exibir tópicos disponíveis.
+    6. Exibir tópicos disponíveis.
         Exibe os topicos criados pelos sensores
 
-    6. Exibir mensagens de um tópico.
+    7. Exibir mensagens de um tópico.
         Nessa funcionalidade o cliente pode receber as mensagens que estão pendentes em sua lista de mensagens pendentes, tudo isso por topico
         Se o sensor responsavel por mandar mensagens nesse tópico estiver desligado, o cliente não pode exibir mensagens.
-    7. Exibir mensagens de um tópico continuamente.
+    8. Exibir mensagens de um tópico continuamente.
         Essa opção exibe as mensagens pendentes continuamente
-    8. Sair.
+    9. Sair.
 
 
 # ################################################# RELATÓRIO ##############################################################
@@ -238,60 +242,48 @@ Esse file é destinado para o broker-servidor em que ele possui uma API para ate
 # ################ ################## #################  ################  ########### ############# ############### ################
 
 # File: Client.py
-    Esse file é destinado ao cliente que faz requisições http para a Aplicação que está no broker servidor.
+    Esse file é destinado ao cliente que faz requisições http para a API que está no broker servidor.
 
- #   Operações Básicas:
-  * 1. Inscrever-se em um Tópico:
-    Selecione a opção "1" para inscrever-se em um tópico.
-    Uma lista de tópicos disponíveis será exibida com seus respectivos códigos.
-    Digite o código do tópico desejado para se inscrever.
-    
-  * 2. Desinscrever-se de um Tópico:
-    Selecione a opção "2" para desinscrever-se de um tópico.
-    Uma lista de tópicos inscritos será exibida com seus respectivos códigos.
-    Digite o código do tópico do qual deseja desinscrever-se.
-    
-  * 3. Ligar Sensor:
-    Selecione a opção "3" para ligar o sensor de temperatura em um tópico inscrito.
-    Será solicitado o código do tópico onde o sensor será ligado.
-    Será verificado se o cliente está inscrito no topico para poder liga-lo.
-    
-  * 4. Desligar Sensor:
-    Selecione a opção "4" para desligar o sensor de temperatura em um tópico inscrito.
-    Será solicitado o código do tópico onde o sensor será desligado.
-    Será verificado se o cliente está inscrito no topico para poder desliga-lo.
-    
-  * 5. Exibir Tópicos:
-    Selecione a opção "5" para exibir a lista de tópicos disponíveis.
-    
-  * 6. Exibir Mensagem de um Tópico:
-    Selecione a opção "6" para exibir a última mensagem recebida de um tópico inscrito.
-    Será solicitado o código do tópico do qual deseja exibir a mensagem.
-    Será verificado se o cliente está inscrito no topico para poder receber a mensagem.
-  
-  * 7. Exibir Mensagens Continuamente:
-    Selecione a opção "7" para exibir as mensagens continuamente de um tópico inscrito.
-    Será solicitado o código do tópico do qual deseja exibir as mensagens.
-    Será verificado se o cliente está inscrito no topico para poder receber a mensagem.
-    Pressione "Enter" para interromper a exibição contínua.
-    
-  * 8. Sair do Programa:
-    Selecione a opção "8" para sair do programa e encerrar a execução.
+# Funções:
+
+#    subscribe_to_topic(topic):
+    Descrição: Esta função permite que o cliente se inscreva em um tópico específico no broker, usando a rota /subscribe da API.
+
+#   unsubscribe_to_topic(topic):
+    Descrição: Esta função permite que o cliente cancele a inscrição em um tópico específico no broker, usando a rota /unsubscribe da API.
+
+#   exibir_topicos():
+    Descrição: Esta função solicita ao broker uma lista dos tópicos disponíveis e os exibe, usando a rota /display_topics da API.
+
+#   on_device(topic):
+    Descrição: Esta função envia um comando para ligar o sensor associado ao tópico fornecido ao broker, usando a rota /control_device.
+
+#   change_data(topic, change):
+    Descrição: Esta função envia um comando para alterar os dados do sensor associado ao tópico fornecido ao broker, usando a rota /control_device.
+
+#   off_device(topic):
+    Descrição: Esta função envia um comando para desligar o sensor associado ao tópico fornecido ao broker, usando a rota /control_device.
+
+#   get_messages_from_topic(topic):
+    Descrição: Esta função solicita ao broker as últimas mensagens recebidas em um tópico específico e as exibe, usando a rota /get_messages.
+
+#  thread_get_messages(event, topic):
+    Descrição: Esta função é executada em uma thread separada para receber continuamente as mensagens de um tópico específico e exibi-las, usando a rota /get_messages com várias chamadas dentro de um loop.
 
 # Comunicação HTTP:
     O cliente utiliza o protocolo HTTP (Hypertext Transfer Protocol) para se comunicar com o servidor broker. Ele envia solicitações HTTP para diferentes rotas do servidor e recebe respostas HTTP correspondentes.
 
 #   Métodos HTTP Utilizados:
     POST: Utilizado para inscrever-se em um tópico, desinscrever-se de um tópico.
-    GET: Utilizado para exibir os tópicos disponíveis, verificar a inscrição em um tópico, obter mensagens de um tópico e verificar o status do servidor.
-    PUT: Utilizado solicitar a aplicação que ligue ou desligue o sensor.
+    GET: Utilizado para exibir os tópicos disponíveis, obter mensagens de um tópico.
+    PUT: Utilizado para solicitar a aplicação que ligue, desligue o sensor e também serve para alterar os dados que estão sendo enviados.
 
 # Observações Importantes:
     Certificar que o servidor broker esteja ativo e operacional para garantir o funcionamento adequado do cliente.
-    Ao fazer a incrição ou desinscrição de um tópico, certifique-se de selecionar o código correto do tópico.
+
     O cliente utiliza comunicação HTTP para interagir com o servidor broker, então verificar a conectividade de rede adequada antes de usar o cliente.
 
 
-# #### ORDEM DE INICIALIZAÇÃO Servidor -> Sensor -> Cliente
+# #### ORDEM DE INICIALIZAÇÃO Servidor -> Sensor <-> Cliente
 * É importante que o servidor seja executado primeiro
-* Depois o sensor e o cliente podem ser executados sem problemas
+* Depois o sensor ou cliente podem ser executados sem problemas
