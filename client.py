@@ -30,7 +30,7 @@ def unsubscribe_to_topic(topic):
         print(response.json()['error'])  
 
 
-
+# Função para exibir os tópicos registrados
 def exibir_topicos():
     
     try:
@@ -83,7 +83,7 @@ def off_device(topic):
 
 
 
-
+# Função para receber a ultima menstagem do sensor
 def get_messages_from_topic(topic):
     ip = CLIENT_IP
     port = CLIENT_PORT 
@@ -129,14 +129,16 @@ def option_topic(topics):
 def main_menu():
     print("=== Menu ===")
     print("1. Inscrever-se em um tópico")
-    print("2. Desinscrever-se em um tópico")
+    print("2. Desinscrever-se de um tópico")
     print("3. Ligar sensor")
-    print("4. Desligar sensor")
-    print('5. Exibir Tópicos')
-    print('6. Exibir menssagem')
-    print("7. Exibir menssagem continuamente")
-    print("8. Sair")
+    print("4. Alterar dado do sensor")
+    print("5. Desligar sensor")
+    print('6. Exibir Tópicos')
+    print('7. Exibir menssagem')
+    print("8. Exibir menssagem continuamente")
+    print("9. Sair")
 
+    # Inscrever em um tópico
     choice = input("Escolha uma opção: ")
     if choice == "1":
         # Resgata o dicionário de tópicos disponiveis
@@ -149,7 +151,7 @@ def main_menu():
         else:
             print('Opção inválida')
 
-    
+    # Desinscrever de um tópico
     elif choice == "2":
         # Resgata o dicionário de tópicos disponiveis
         topics = exibir_topicos()
@@ -161,7 +163,7 @@ def main_menu():
         else:
             print('Opção inválida')
                     
-        
+    # Ligar sensor   
     elif choice == "3":
         # Resgata o dicionário de tópicos disponiveis
         topics = exibir_topicos()
@@ -175,7 +177,7 @@ def main_menu():
                     
 
        
-
+    # Desligar sensor
     elif choice == "4":
         # Resgata o dicionário de tópicos disponiveis
         topics = exibir_topicos()
@@ -188,7 +190,7 @@ def main_menu():
             print('Opção inválida')
 
 
-
+    # Exibir tópicos
     elif choice == "5":
         print(exibir_topicos())
         

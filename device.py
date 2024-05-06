@@ -58,6 +58,7 @@ def handle_tcp_connection(connection):
             on_device()
         elif data == 'Desligar':
             off_device()
+        #elif data == 'Alterar'
     connection.close()
 
 # Função para ligar o sensor
@@ -91,9 +92,9 @@ def create_topic(topic):
 # Thread para lidar com conexões TCP
 def tcp_server_thread():
     while True:
-        connection, address = tcp_server_socket.accept()
-        print("Conexão TCP estabelecida com:", address)
-        threading.Thread(target=handle_tcp_connection, args=(connection,)).start()
+        connection = tcp_server_socket.accept()
+        print("Conexão TCP estabelecida com o servidor")
+        threading.Thread(target=handle_tcp_connection, args=(connection)).start()
 
 # Inicia a thread do servidor TCP, para que o sensor receba mensagens em outra thread
 threading.Thread(target=tcp_server_thread).start()
