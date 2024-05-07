@@ -18,9 +18,6 @@
 # Servidor(server.py)
     O servidor é responsável por gerenciar as conexões entre os clientes e os sensores.
     Iniciar o Servidor: Execute o arquivo server.py utilizando Python. Isso iniciará o servidor e estará pronto para aceitar conexões de clientes e sensores. 
-#       É ESSENCIAL QUE O SERVIDOR ESTEJA EM EXECUÇÃO PARA O FUNCIONAMENTO CORRETO DO PROGRAMA*****
-
-
 
 
 # Sensor(device.py)
