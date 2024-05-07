@@ -170,7 +170,7 @@ def process_message(data, addr):
 
         # Ação de criar um tópico para o sensor
         if topic not in topic_subscriptions and action == 'subscribe':
-            topic_subscriptions[topic] = {'clients': {},'state': 'desligado'}
+            topic_subscriptions[topic] = {'clients': {},'state': 'Desligado'}
             print(f'O sensor se inscreveu no tópico "{topic}"')
             
             # Salva a porta e o ip para enviar comandos de gerenciamento via TCP
@@ -181,7 +181,7 @@ def process_message(data, addr):
         elif topic and action == 'Ligar':
             # Se o tópico não estiver criado, o servidor cria, isso foi feito para caso o servidor reinicie e sensor permaneça ligado
             if topic not in topic_subscriptions:
-                topic_subscriptions[topic] = {'clients': {},'state': 'desligado'}
+                topic_subscriptions[topic] = {'clients': {},'state': 'Desligado'}
            
             # Atualiza o estado do sensor no dicionário de tópicos    
             topic_subscriptions[topic]['state'] = 'Ligado'
