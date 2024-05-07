@@ -78,7 +78,7 @@ def exibir_topicos():
 
 
 
-# Rota para ligar ou desligar o dispositivo/sensor
+# Rota para ligar, desligar ou alterar os dados que o dispositivo/sensor manda
 @app.route('/control_device', methods=['PUT'])
 def controlar_sensor():
     data = request.get_json()
