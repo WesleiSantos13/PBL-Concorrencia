@@ -1,16 +1,16 @@
-# PBL-Concorrencia
+# PBL-Concorrência
 
 #                ##### ####                  COMO USAR O PROGRAMA   #############  ##########   ########     ###############
 #   Configuração Inicial
     
-    O sistema tem como código fonte a linguagem python, por isso é necesário que o ambiente que irá rodar o programa tenha o python instalado.
+    O sistema tem como código fonte a linguagem python, por isso é necessário que o ambiente que irá rodar o programa tenha o python instalado.
         Link para baixar o python nos diferentes sistemas operacionais: https://www.python.org/downloads/
         A versão utilizada foi a 3.12
     
     Depois é necessário instalar a API do flask, usando o comando pip do python no prompt de comando:
         pip install flask (Apenas o servidor necessita do flask)
     
-    E instalar a biblioteca requests, que é responsável pelas solicitacões dos clientes via http. Instale  usando o prompt de comando com:
+    E instalar a biblioteca requests, que é responsável pelas solicitações dos clientes via http. Instale  usando o prompt de comando com:
         pip install requests (Apenas os clientes/aplicações necessitam da requests)
 
 #    Utilização do Programa (Execução) #### #####
@@ -40,7 +40,7 @@ Desativação do Sensor: Basta fechar a janela ou interromper a execução do pr
    
    * 2. Desligar o Sensor:
     Selecione a opção "2" para desligar o sensor de temperatura.
-    O sensor interromperá o envio de dados de temperatura para o servidor.
+    O sensor interrompe o envio de dados de temperatura para o servidor.
     
    * 3. Alterar Temperatura Manualmente:
     Selecione a opção "3" para alterar manualmente a temperatura simulada pelo sensor.
@@ -80,7 +80,7 @@ Desativação do Sensor: Basta fechar a janela ou interromper a execução do pr
 
     7. Exibir mensagens de um tópico.
         Nessa funcionalidade o cliente pode receber as mensagens que estão pendentes em sua lista de mensagens pendentes, tudo isso por topico
-        Se o sensor responsavel por mandar mensagens nesse tópico estiver desligado, o cliente não pode exibir mensagens.
+        Se o sensor responsável por mandar mensagens nesse tópico estiver desligado, o cliente não pode exibir mensagens.
     8. Exibir mensagens de um tópico continuamente.
         Essa opção exibe as mensagens pendentes continuamente
     9. Sair.
@@ -88,14 +88,14 @@ Desativação do Sensor: Basta fechar a janela ou interromper a execução do pr
 
 ## Comandos Docker:
 #  Para carregar as imagens do dockerHub
-docker pull wesleisantoss/servidor_app
-docker pull wesleisantoss/sensor_app
-docker pull wesleisantoss/cliente_app
+    docker pull wesleisantoss/servidor_app
+    docker pull wesleisantoss/sensor_app
+    docker pull wesleisantoss/cliente_app
 
 # Para executar em qualquer máquina:
-docker run  --network="host" -it wesleisantoss/cliente_app
-docker run  --network="host" -it wesleisantoss/servidor_app
-docker run  --network="host" -it wesleisantoss/sensor_app
+    docker run  --network="host" -it wesleisantoss/cliente_app
+    docker run  --network="host" -it wesleisantoss/servidor_app
+    docker run  --network="host" -it wesleisantoss/sensor_app
 
 
 
@@ -148,7 +148,7 @@ Esse file é destinado para o broker-servidor em que ele possui uma API para ate
     
 # Comunicação HTTP:
     Protocolo: HTTP (Hypertext Transfer Protocol)
-    Finalidade: A comunicação HTTP é usada para interações entre os clientes e o servidor web Flask. Os clientes enviam solicitações HTTP para o servidor através de endpoints específicos (por exemplo, /subscribe, /controlar_sensor) usando os métodos HTTP adequados (POST, GET, PUT). O servidor processa essas solicitações e retorna respostas HTTP correspondentes.
+    Finalidade: A comunicação HTTP é usada para interações entre os clientes e o servidor web Flask. Os clientes enviam solicitações HTTP para o servidor através de endpoints específicos (por exemplo, /subscribe, /controlar_sensor) usando os métodos HTTP adequados (POST, GET, PUT). O servidor processa essas solicitações e retorna as respostas HTTP correspondentes.
     Mecanismo: O framework flask é usado para criar uma aplicação no servidor web que escuta solicitações HTTP dos clientes. Os endpoints definidos na aplicação correspondem a diferentes ações que os clientes podem realizar. Por exemplo, inscrever-se em um tópico, controlar sensores, obter mensagens, etc.
 
    # As rotas da API são:
@@ -192,20 +192,14 @@ Esse file é destinado para o broker-servidor em que ele possui uma API para ate
     Descrição: Este endpoint permite que um cliente obtenha as mensagens pendentes de um determinado tópico, fornecendo o nome do tópico, o endereço IP do cliente e o número da porta.
     ----------------------------------------------------------------------
 
-#   Verificação de Atividade do Servidor:
-    Endpoint: /verificacao
-    Método HTTP: GET
-    
-    Descrição: Este endpoint retorna um status indicando se o servidor está ativo.
-    ----------------------------------------------------------------------
 
 # Comunicação UDP (User Datagram Protocol):
     Protocolo: UDP (User Datagram Protocol)
     Finalidade: A comunicação UDP é utilizada para receber mensagens do sensor.
-    Mecanismo: Um socket UDP é criado no servidor e associado a um endereço IP e porta específicos. O servidor espera por mensagens UDP vindas do sensor nesse socket. Quando uma mensagem é recebida, ela é processada e encaminhada para a lista de mensagens pendentes de cada cliente inscrito no tópico correspondente. A função responsavel por receber as mensagens de chama (process_messages).
+    Mecanismo: Um socket UDP é criado no servidor e associado a um endereço IP e porta específicos. O servidor espera por mensagens UDP vindas do sensor nesse socket. Quando uma mensagem é recebida, ela é processada e encaminhada para a lista de mensagens pendentes de cada cliente inscrito no tópico correspondente. A função responsável por receber as mensagens de chama (process_messages).
 
 #    Função (process_messages)
-        A função fica responsavel pelo processamento e encaminhamento de mensagens recebidas pelo servidor a partir do sensor. Ele interpreta o conteúdo das mensagens, atualiza o estado dos tópicos e dos sensores, e encaminha as mensagens pertinentes aos clientes inscritos. Essa função é importantissima para o funcionamento do sistema de comunicação entre o sensor e os clientes.
+        A função fica responsável pelo processamento e encaminhamento de mensagens recebidas pelo servidor a partir do sensor. Ele interpreta o conteúdo das mensagens, atualiza o estado dos tópicos e dos sensores, e encaminha as mensagens pertinentes aos clientes inscritos. Essa função é importantíssima para o funcionamento do sistema de comunicação entre o sensor e os clientes.
 
 # Comunicação TCP (Transmission Control Protocol):
     Protocolo: TCP (Transmission Control Protocol)
@@ -215,7 +209,7 @@ Esse file é destinado para o broker-servidor em que ele possui uma API para ate
 
 
 # FILE: device.py
-    Esse file é destinado para o sensor/dispositivo que ira mandar mennsagem de temperatura para o broker-servidor, e receber comandos de gerenciamento de ligar e desligar e alterar de temperatura.
+    Esse file é destinado para o sensor/dispositivo que irá mandar mensagem de temperatura para o broker-servidor, e receber comandos de gerenciamento de ligar e desligar e alterar de temperatura.
 # Armazenamento de Dados:
 #   Dicionário sensor:
     Propósito: Este dicionário é usado para armazenar informações sobre o sensor de temperatura, como seu nome, estado atual e temperatura simulada.
@@ -234,11 +228,11 @@ Esse file é destinado para o broker-servidor em que ele possui uma API para ate
 # Comunicações do sensor de temperatura
 
   # Comunicação TCP:
-    O socket TCP está disponível na porta 12349. Ele permite receber comandos de gerenciamento do servidor para ligar, desligar ou alterar a temperatura do sensor, essa conecção só aceita um dispositivo gerenciador de cada vez.
+    O socket TCP está disponível na porta 12349. Ele permite receber comandos de gerenciamento do servidor para ligar, desligar ou alterar a temperatura do sensor, essa conexão só aceita um dispositivo gerenciador de cada vez.
 
 
  # Comunicação UDP:
-   O socket UDP está configurado para enviar mensagens de temperatura para o servidor. As mensagens são enviadas em formato JSON e devem conter o tópico, o conteúdo e a ação. O sensor envia dados de temperatura para o tópico inicialmente especificado. a função resposável por isso é chamada send_message e reading_device.
+   O socket UDP está configurado para enviar mensagens de temperatura para o servidor. As mensagens são enviadas em formato JSON e devem conter o tópico, o conteúdo e a ação. O sensor envia dados de temperatura para o tópico inicialmente especificado. a função responsável por isso é chamada send_message e reading_device.
     
 # Funções:
  #  send_message(topic, content, action):
@@ -324,7 +318,7 @@ Como a arquitetura foi desenvolvida. Quais os componentes e como eles se comunic
 # A arquitetura desenvolvida consiste em três componentes principais: o cliente, o servidor e o sensor. Eles interagem da seguinte forma:
 
 # Cliente:
-    O cliente é responsável por interagir com o usuário final. Ele fornece uma interface para que o usuário possa se inscrever e desinscrever em tópicos, controlar o sensor (ligando, desligando ou alterando dados(temperatura), visualizar mensagens eoutras operações relacionadas.
+    O cliente é responsável por interagir com o usuário final. Ele fornece uma interface para que o usuário possa se inscrever e desinscrever em tópicos, controlar o sensor (ligando, desligando ou alterando dados(temperatura), visualizar mensagens e outras operações relacionadas.
     O cliente se comunica com o servidor por meio de requisições HTTP, utilizando as rotas fornecidas pelo servidor para realizar ações como inscrever-se em um tópico, desinscrever-se, solicitar mensagens etc.
     As operações que o cliente pode realizar incluem inscrever-se em um tópico, desinscrever-se, ligar ou desligar o sensor, alterar dados do sensor e solicitar mensagens de um tópico específico.
 
@@ -332,7 +326,7 @@ Como a arquitetura foi desenvolvida. Quais os componentes e como eles se comunic
     O servidor é responsável por gerenciar as inscrições em tópicos, rotear mensagens do sensor para os clientes inscritos nos tópicos e lidar com as solicitações dos clientes.
     Ele fornece várias rotas HTTP para que os clientes possam interagir, como inscrever-se em um tópico, desinscrever-se, controlar o sensor, solicitar mensagens etc.
     Além disso, o servidor atua como intermediário entre o sensor e os clientes, recebendo as mensagens do sensor e enviando-as aos clientes inscritos nos tópicos correspondentes.
-    O armazenamento de dados mais importante estará no servidor, que o dicionario de topicos que relaciona os sensores com os clientes, juntamente com suas respectivas mensagens
+    O armazenamento de dados mais importante estará no servidor, que o dicionário de tópicos que relaciona os sensores com os clientes, juntamente com suas respectivas mensagens
 
 # Sensor:
     O sensor é responsável por coletar dados (temperatura, neste caso) e enviar esses dados para o servidor. 
@@ -380,8 +374,8 @@ No sistema proposto, foram desenvolvidos dois protocolos de comunicação distin
   # A conversa entre os dispositivos e o broker ocorre da seguinte maneira:
     O dispositivo inicializa e cria um socket UDP.
     Quando ele está executando, o sensor possui um menu para criar um tópico, ligar, desligar e alterar temperatura.
-    Quando o sensor cria um tópico, é enviada um mensagem de registro para endereço IP e porta do servidor, e o tópico é criado no dicionário de registro que está no servidor.
-    Em seguida, se o dispositivo for ligado, ele envia uma mensagem UDP formatada em JSON para o servidor, com os dados (temperatura), o tópico que vai emcaminhar a mensagem, e a ação que ligar.
+    Quando o sensor cria um tópico, é enviada uma mensagem de registro para endereço IP e porta do servidor, e o tópico é criado no dicionário de registro que está no servidor.
+    Em seguida, se o dispositivo for ligado, ele envia uma mensagem UDP formatada em JSON para o servidor, com os dados (temperatura), o tópico que vai encaminhar a mensagem, e a ação que ligar.
     O servidor recebe essa mensagem e processa as informações, colocando essas mensagens na lista de mensagens pendentes de cada cliente inscrito (se houver) no tópico correspondentes. Essa lista de mensagens pendentes está no dicionário de registro (topic_subscriptions).
     
 O envio de dados de sensoriamento, como leituras de temperatura, é uma operação contínua e de alta frequência, onde a prioridade é a eficiência e  velocidade de transmissão. Onde, perdas ocasionais de pacotes não são críticas, pois novos dados serão gerados em intervalos regulares. O UDP é adequado para este fim, pois permite o envio rápido e assíncrono de dados, sem a sobrecarga adicional associada ao TCP. 
@@ -393,7 +387,7 @@ O envio de dados de sensoriamento, como leituras de temperatura, é uma operaç�
   # A conversa entre os dispositivos e o broker ocorre da seguinte maneira:
     O dispositivo cria um socket TCP e fica aguardando conexões.
     Quando o broker envia um comando de gerenciamento para um dispositivo específico (mediante a requisição de um cliente), ele estabelece uma conexão TCP com o dispositivo.
-    O broker envia o comando de gerenciamento (por exemplo, "ligar", "desligar" ou alteração de dados, mas nesse caso o broker so recebe o dado que vai ser alterado, ex: 11 que é referente a temperatura a ser atualizada) para o dispositivo por meio da conexão TCP.
+    O broker envia o comando de gerenciamento (por exemplo, "ligar", "desligar" ou alteração de dados, mas nesse caso o broker só recebe o dado que vai ser alterado, ex: 11 que é referente a temperatura a ser atualizada) para o dispositivo por meio da conexão TCP.
     O dispositivo recebe o comando, interpreta e executa a ação correspondente.
     Após a execução do comando, o dispositivo fecha a conexão TCP.
     Este protocolo permite uma comunicação bidirecional entre o broker e os dispositivos para fins de controle e gerenciamento do sensor.
@@ -429,7 +423,7 @@ Descrição: Exibe os tópicos criados.
 # Verbo: GET
 Descrição: Obtém as mensagens de um tópico específico para um cliente.
 
-# Formatacao, envio e tratamento de dados
+# Formatação, envio e tratamento de dados
 Que tipo de formatação foi usada para transmitir os dados, permitindo que nós diferentes compreendam as mensagens trocadas.
 
 #   Para permitir que nós diferentes compreendam as mensagens trocadas entre os dispositivos e o broker na camada de aplicação, foi utilizada a formatação de dados em JSON (JavaScript Object Notation).
@@ -474,7 +468,7 @@ Que tipo de formatação foi usada para transmitir os dados, permitindo que nós
                 tcp_socket.send(str_change.encode()) # Para enviar nova temperatura para o sensor
 
 
-# Tratamento de conexões simultaneas (threads)###############################################################
+# Tratamento de conexões simultâneas  (threads)###############################################################
 Como threads foram usados para tornar o sistema mais eficiente? Há problemas de concorrência decorrentes do uso de threads? Se sim, como estas
 questões foram tratadas?
 
@@ -491,12 +485,12 @@ As threads foram utilizadas no sistema para lidar com a necessidade de paralelis
     * Neste trecho de código, uma nova thread é criada e iniciada para buscar mensagens continuamente do tópico especificado, chamando a rota de receber mensagens dentro de um loop. Isso permite que o cliente receba mensagens sem interromper a execução do restante do programa.
     * O loop principal do programa aguarda até que o usuário pressione Enter, momento em que o evento stop_event é sinalizado para interromper a busca contínua de mensagens.
 
-Não existe problemas de concorrêcia identificadas
+Não existe problemas de concorrência identificadas
 
 
 
 #  Gerenciamento do dispositivo #################################################################################
-É possível gerenciar o dispositivo (parar, alterar valores, etc) ? Isso pode ser feito reomtamente? E via uma interface do próprio dispositivo?
+É possível gerenciar o dispositivo (parar, alterar valores, etc) ? Isso pode ser feito remotamente? E via uma interface do próprio dispositivo?
     
 É possível gerenciar o dispositivo remotamente através da API implementada. O cliente pode fazer requisições para envio de comandos para ligar, desligar e alterar valores do dispositivo via API do broker que irá mandar os comandos de gerenciamento via TCP.
 
@@ -507,7 +501,7 @@ A interface do proprio dispositivo funciona corretamente, ambos podem ligar, des
 
 #  Desempenho (uso de cache no Broker, filas, threads, etc.) ###################
 
-O sistema utiliza algum mecanimos para melhorar o tempo de resposta para a aplicação?
+O sistema utiliza algum mecanismos para melhorar o tempo de resposta para a aplicação?
     No geral, o uso de threads e a arquitetura assíncrona do servidor UDP e Flask contribuem para um melhor desempenho e tempo de resposta mais rápido para a aplicação. 
 
 
