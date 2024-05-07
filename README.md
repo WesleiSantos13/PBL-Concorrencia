@@ -21,6 +21,8 @@
 #       É ESSENCIAL QUE O SERVIDOR ESTEJA EM EXECUÇÃO PARA O FUNCIONAMENTO CORRETO DO PROGRAMA*****
 
 
+
+
 # Sensor(device.py)
 O sensor é responsável por enviar informações de temperatura para o servidor.
 
@@ -82,6 +84,20 @@ Desativação do Sensor: Basta fechar a janela ou interromper a execução do pr
     8. Exibir mensagens de um tópico continuamente.
         Essa opção exibe as mensagens pendentes continuamente
     9. Sair.
+
+
+## Comandos Docker:
+#  Para carregar as imagens do dockerHub
+docker pull wesleisantoss/servidor_app
+docker pull wesleisantoss/sensor_app
+docker pull wesleisantoss/cliente_app
+
+# Para executar em qualquer máquina:
+docker run  --network="host" -it wesleisantoss/cliente_app
+docker run  --network="host" -it wesleisantoss/servidor_app
+docker run  --network="host" -it wesleisantoss/sensor_app
+
+
 
 
 # ################################################# RELATÓRIO ##############################################################
