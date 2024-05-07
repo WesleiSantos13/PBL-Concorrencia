@@ -11,7 +11,7 @@ COPY server.py .
 RUN pip install flask
 
 # Exponha a porta 5000 para acesso externo
-EXPOSE 5000
+EXPOSE 5555
 
 # Comando padrão a ser executado quando o contêiner for iniciado
 CMD ["python", "server.py"]

@@ -3,7 +3,8 @@ import time
 import threading
 
 # Configurações
-BROKER_URL = 'http://localhost:5000'
+BROKER_URL = 'http://localhost:5555'
+# Só para registro
 CLIENT_PORT = 12340
 CLIENT_IP = '127.0.0.1'
 

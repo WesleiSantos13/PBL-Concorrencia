@@ -209,7 +209,7 @@ def process_message(data, addr):
 
 # Função para iniciar o servidor Flask em uma thread separada
 def start_flask():
-    app.run(host='127.0.0.1', debug=True, use_reloader=False)
+    app.run(port=5555,host='127.0.0.1', debug=True, use_reloader=False)
 
 
 
