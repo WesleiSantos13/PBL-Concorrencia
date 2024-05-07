@@ -2,18 +2,18 @@ import socket
 import json
 import time
 import threading
-
-
+import os
 
 # Configurações iniciais do sensor
 device = {'Nome': 'Sensor de Temperatura', 'Estado': 'Desligado', 'Temperatura': 24, 'Registrado': False}
                                                                                         # Registrado serve para saber se o sensor criou 
-# Configurações do servidor UDP para enviar a temperatura                                       um tópico
-UDP_SERVER_IP = '127.0.0.1'
+# Configurações do servidor UDP para enviar a temperatura                                   um tópico
+
+UDP_SERVER_IP = os.getenv('IP_SERVER')
 UDP_SERVER_PORT = 8888
 
 # Configurações do servidor TCP para receber comandos de gerenciamento
-TCP_SERVER_IP = '127.0.0.1'
+TCP_SERVER_IP = socket.gethostbyname(socket.gethostname())
 TCP_SERVER_PORT = 12349
 
 # O nome do tópico que o sensor vai criar possui o mesmo nome do sensor

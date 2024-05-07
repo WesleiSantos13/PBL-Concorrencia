@@ -1,12 +1,14 @@
 import requests
 import time
 import threading
-
+import os
 # Configurações
-BROKER_URL = 'http://localhost:5555'
+
+BROKER_URL = "http://"+ os.getenv('IP_SERVER') +":5555"
+
 # Só para registro
 CLIENT_PORT = 12340
-CLIENT_IP = '127.0.0.1'
+CLIENT_IP = '145.0.0.1'
 
 
 # Função para se inscrever em um tópico
