@@ -497,3 +497,11 @@ O sistema utiliza algum mecanimos para melhorar o tempo de resposta para a aplic
 
 # Confiabilidade da solução (tratamento das conexões)
 Tirando e recolocando o cabo de algum dos nós, o sistema continua funcionando?
+
+Ao retirar a rede do broker o sensor continua normalmente, sem aparecer erros, mas o cliente para de funcionar, mas quando a conexão com rede é estabelecida, tudo volta a funcionar normalmente, sem necessidade de executar novamente.
+
+Ao retirar a rede do sensor nenhum erro aparece, ao retomar a conexão tudo volta a funcionar normalmente.
+
+Ao retirar a rede do cliente o erro aparece, mas quando a conexão é estabelecida ele volta a funcionar normalmente, sem necessitar de executar novamente.
+
+O grande pórem é que pode ocorrer de o cliente fazer uma requisição, e se o servidor não estiver em execução, a execução do cliente irá apresentar falhas. 
