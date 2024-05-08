@@ -8,7 +8,6 @@ import os
 device = {'Nome': 'Sensor de Temperatura', 'Estado': 'Desligado', 'Temperatura': 24, 'Registrado': False}
                                                                                         # Registrado serve para saber se o sensor criou 
 # Configurações do servidor UDP para enviar a temperatura                                   um tópico
-
 UDP_SERVER_IP = os.getenv('IP_SERVER')
 UDP_SERVER_PORT = 8888
 

@@ -90,9 +90,9 @@ Desativação do Sensor: Basta fechar a janela ou interromper a execução do pr
     docker pull wesleisantoss/cliente_app
 
 # Para executar em qualquer máquina:
-    docker run  --network="host" -it wesleisantoss/cliente_app
-    docker run  --network="host" -it wesleisantoss/servidor_app
-    docker run  --network="host" -it wesleisantoss/sensor_app
+    docker run  --network=host -it wesleisantoss/servidor_app
+    docker run --network=host -it -e IP_SERVER=192.168.65.3 wesleisantoss/cliente_app
+    docker run --network=host -it -e IP_SERVER=192.168.65.3 wesleisantoss/sensor_app
 
 
 
