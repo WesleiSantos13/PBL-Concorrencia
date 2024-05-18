@@ -2,13 +2,15 @@ import requests
 import time
 import threading
 import os
-# Configurações
+import socket
 
-BROKER_URL = "http://"+ os.getenv('IP_SERVER') +":5555"
+# Configurações
+BROKER_URL = "http://"+ os.getenv('IP_SERVER') +":5555" # Para obter o valor da variável de ambiente para o docker
+# Caso for executar na máquina, ou seja, sem docker, coloque o ip da máquina no lugar de os.getenv('IP_SERVER').
 
 # Só para registro
 CLIENT_PORT = 12340
-CLIENT_IP = '145.0.0.1'
+CLIENT_IP = socket.gethostbyname(socket.gethostname())
 
 
 # Função para se inscrever em um tópico

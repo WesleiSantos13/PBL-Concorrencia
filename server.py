@@ -2,6 +2,7 @@ import socket
 import json
 from flask import Flask, request, jsonify
 import threading
+from time import sleep
 
 # Configurações do servidor UDP para receber mensagem
 SERVER_IP = socket.gethostbyname(socket.gethostname())
@@ -20,9 +21,6 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.bind((SERVER_IP, SERVER_PORT))
 
 app = Flask(__name__)
-
-
-
 
 
 
@@ -223,9 +221,12 @@ if __name__ == '__main__':
     while True:
         # Recebe os dados do cliente
         data, addr = server_socket.recvfrom(1024)
-    
+
         # Processa os dados recebidos
         process_message(data, addr)
-        
+        sleep(2)
+        print(' ')
         # Exibe o dicionário de topicos
         print(topic_subscriptions)
+      
+

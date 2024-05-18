@@ -4,27 +4,38 @@ import time
 import threading
 import os
 
+
 # Configurações iniciais do sensor
-device = {'Nome': 'Sensor de Temperatura', 'Estado': 'Desligado', 'Temperatura': 24, 'Registrado': False}
-                                                                                        # Registrado serve para saber se o sensor criou 
-# Configurações do servidor UDP para enviar a temperatura                                   um tópico
-UDP_SERVER_IP = os.getenv('IP_SERVER')
+device = {'Nome': ' ', 'Estado': 'Desligado', 'Temperatura': 24, 'Registrado': False}
+                                                                                        # 'Registrado' serve para saber se o sensor criou 
+                                                            #                                 um tópico
+# O nome será definido depois de obter a porta tcp de conexão
+
+
+# Configurações do servidor UDP para enviar a temperatura  
+UDP_SERVER_IP = os.getenv('IP_SERVER') # Para obter o valor da variável de ambiente para o docker
+# Caso for executar na máquina, ou seja, sem docker, coloque o ip da máquina no lugar de os.getenv('IP_SERVER').
 UDP_SERVER_PORT = 8888
 
 # Configurações do servidor TCP para receber comandos de gerenciamento
 TCP_SERVER_IP = socket.gethostbyname(socket.gethostname())
-TCP_SERVER_PORT = 12349
-
-# O nome do tópico que o sensor vai criar possui o mesmo nome do sensor
-NAME_TOPIC = device['Nome']
 
 # Criação do socket UDP
 device_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Criação do socket TCP
 tcp_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-tcp_server_socket.bind((TCP_SERVER_IP, TCP_SERVER_PORT))
+tcp_server_socket.bind((TCP_SERVER_IP, 0))
 tcp_server_socket.listen(1)  # Escuta apenas uma conexão por vez
+
+# Obtém a porta à qual o socket foi vinculado
+TCP_SERVER_PORT = tcp_server_socket.getsockname()[1]
+
+# Altera o nome do sensor, para garantir que não tenham sensores com o mesmo nome
+device['Nome']= 'Sensor-Temp-'+str(TCP_SERVER_PORT) #adiciona a porta no nome para diferenciar dos outros dispositivos
+
+# O nome do tópico que o sensor vai criar possui o mesmo nome do sensor
+NAME_TOPIC = device['Nome']
 
 # Função para enviar mensagens ao servidor (UDP)
 def send_message(topic, content, action):
@@ -46,7 +57,7 @@ def reading_device():
         time.sleep(2)
 
 # Função para lidar com conexões TCP
-def handle_tcp_connection(connection):
+def process_tcp_connection(connection):
     while True:
         data = connection.recv(1024).decode()
         print(data)
@@ -85,7 +96,7 @@ def change_temperature():
 
 # Função para criar um tópico para envio de temperatura
 def create_topic(topic):
-    message = {'action': 'subscribe', 'topic': topic, 'ip': TCP_SERVER_IP, 'porta': TCP_SERVER_PORT} # passa a porta para receber comando tcp
+    message = {'action': 'subscribe', 'topic': topic, 'ip': TCP_SERVER_IP, 'porta': TCP_SERVER_PORT} # passa a porta e o ip para receber comando tcp
     device_socket.sendto(json.dumps(message).encode(), (UDP_SERVER_IP, UDP_SERVER_PORT))
 
 
@@ -95,7 +106,7 @@ def tcp_server_thread():
     while True:
         connection, address = tcp_server_socket.accept()
         print("Conexão TCP estabelecida com:", address)
-        threading.Thread(target=handle_tcp_connection, args=(connection,)).start()
+        threading.Thread(target=process_tcp_connection, args=(connection,)).start()
 
 # Inicia a thread do servidor TCP, para que o sensor receba mensagens em outra thread
 threading.Thread(target=tcp_server_thread).start()
