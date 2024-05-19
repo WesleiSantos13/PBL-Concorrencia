@@ -1,4 +1,6 @@
-# PBL-Concorrência
+# PBL1-Concorrência- Internet das coisas
+
+__Autor - Weslei Silva Santos__
 
 _# COMO USAR O PROGRAMA_
    
@@ -413,28 +415,26 @@ DELETE: Utilizado para excluir um recurso existente.
 __(5) Formatação, envio e tratamento de dados__  
 _Que tipo de formatação foi usada para transmitir os dados, permitindo que nós diferentes compreendam as mensagens trocadas._
 
-*  Para permitir que nós diferentes compreendam as mensagens trocadas entre os dispositivos e o broker na camada de aplicação, foi utilizada a formatação de dados em JSON (JavaScript Object Notation).
+*  Para permitir que nós diferentes compreendam as mensagens trocada, foi utilizada a formatação de dados em JSON (JavaScript Object Notation).
 
     O JSON é um formato leve e de fácil leitura para intercâmbio de dados entre sistemas. Ele consiste em pares de chave-valor e listas ordenadas de valores. Essa estrutura de dados é facilmente interpretada por várias linguagens de programação, tornando-a ideal para comunicação entre sistemas.
 
     * Na comunicação HTTP entre o dispositivo cliente e o broker, o formato JSON foi utilizado da seguinte forma:
-        data = request.get_json() # captura o payload enviado
-        topic = data.get('topic') # extrai o tópico
-        action = data.get('action')  # Ação: 'ligar' ou 'desligar'
-        ip = data.get('ip')  # Extrai o ip
-        port = data.get('port') # Extrai a porta
+        - data = request.get_json() # captura o payload enviado  
+        - topic = data.get('topic') # extrai o tópico  
+        - action = data.get('action')  # Ação: 'ligar' ou 'desligar'  
+        - ip = data.get('ip')  # Extrai o ip  
+        - port = data.get('port') # Extrai a porta  
     
       __A Maioria das rotas possuem essa estrutura__
 
+*   Para a comunicação UDP entre dispositivos (sensores) e o broker o padrão da mensagem segue uma estrutura um pouco diferente. A mensagem contém campos que indicam o tipo de ação a ser realizada, o tópico relacionado à mensagem e o conteúdo. Abaixo estão as estruturas das mensagens:
 
+*   Função send_menssage:  
+    message ={"action": "ação", "topic": "tópico", "content": "conteúdo"}
 
-*   Para a comunicação UDP entre dispositivos (sensores) e broker o padrão da mensagem segue uma estrutura em dicionário. Cada mensagem contém campos específicos que indicam o tipo de ação a ser realizada, o tópico relacionado à mensagem e o conteúdo. Abaixo estão as estruturas das mensagens:
-
-*   Função send_menssage
-    ** message ={"action": "ação", "topic": "tópico", "content": "conteúdo"}
-
-    * action: Este campo indica a ação a ser realizada, como "ligar", "desligar".
-    * topic: Este campo indica o tópico relacionado à mensagem, que é o nome do sensor
+    * action: Este campo indica a ação a ser realizada, como "ligar", "desligar".  
+    * topic: Este campo indica o tópico relacionado à mensagem, que é o nome do sensor  
     * content: Este campo contém o conteúdo relevante da mensagem, que pode variar dependendo da ação e do contexto, mas a utilização principal dele nessa função é o envio de dados do sensor para o broker, a outra utilização é só para enviar uma mensagem para atualizar o status do dispositivo depois dele ser desligado pelo broker via tcp.
 
     Aqui está as aplicações dessa função:
@@ -449,10 +449,11 @@ _Que tipo de formatação foi usada para transmitir os dados, permitindo que nó
     Essa função irá mandar a ação de 'subscribe', para se inscrever no tópico,  o tópico específico, e o ip e a porta que irão receber os comandos de gerenciamentos futuros via TCP.
 
 
-*    Para a comunicação TCP entre dispositivos (sensores) e broker, a estrutura usada foi somente uma string referente aos comandos de gerenciamento. 
-    Aplicações: tcp_socket.send('Desligar'.encode()) 
-                tcp_socket.send('Ligar'.encode())
-                tcp_socket.send(str_change.encode()) # Para enviar nova temperatura para o sensor
+*    Para a comunicação TCP entre dispositivos (sensores) e broker, a estrutura usada foi somente uma string referente aos comandos de gerenciamento.  
+    Aplicações:  
+                tcp_socket.send('Desligar'.encode())  
+                tcp_socket.send('Ligar'.encode())  
+                tcp_socket.send(str_change.encode()) # Para enviar nova temperatura para o sensor  
 
 
   __(6) Tratamento de conexões simultâneas  (threads)__  
@@ -488,15 +489,16 @@ A interface do proprio dispositivo funciona corretamente, ambos podem ligar, des
 
 __(8) Desempenho (uso de cache no Broker, filas, threads, etc.)__  
 _O sistema utiliza algum mecanismos para melhorar o tempo de resposta para a aplicação?_  
+
     No geral, o uso de threads e a arquitetura assíncrona do servidor UDP e Flask contribuem para um melhor desempenho e tempo de resposta mais rápido para a aplicação. 
 
 
-__(9) Confiabilidade da solução (tratamento das conexões)__
+__(9) Confiabilidade da solução (tratamento das conexões)__  
 _Tirando e recolocando o cabo de algum dos nós, o sistema continua funcionando?_  
 
 Ao retirar a rede do broker o sensor continua normalmente, sem aparecer erros, mas o cliente para de funcionar, mas quando a conexão com rede é estabelecida, tudo volta a funcionar normalmente, sem necessidade de executar novamente.
 
-Ao retirar a rede do sensor nenhum erro aparece, ao retomar a conexão tudo os dados não voltam a chegar ao broker, é necessário reiniciar o sensor.
+Ao retirar a rede do sensor nenhum erro aparece, ao retomar a conexão os dados não voltam a chegar ao broker, é necessário reiniciar o sensor.
 
 Ao retirar a rede do cliente o erro aparece, mas quando a conexão é estabelecida ele volta a funcionar normalmente, sem necessitar de executar novamente.
 
