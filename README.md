@@ -255,55 +255,53 @@ __Comunicações do sensor de temperatura:__
 
 
 
-__File:__ _client.py_
+__File:__ _client.py_  
     Esse file é destinado ao cliente que faz requisições http para a API que está no broker servidor.
 
 * Funções:
 
-*    subscribe_to_topic(topic):
-    Descrição: Esta função permite que o cliente se inscreva em um tópico específico no broker, usando a rota /subscribe da API.
+   *    subscribe_to_topic(topic):  
+    Descrição: Esta função permite que o cliente se inscreva em um tópico específico no broker, usando a rota /subscribe da API.  
+   *   unsubscribe_to_topic(topic):  
+    Descrição: Esta função permite que o cliente cancele a inscrição em um tópico específico no broker, usando a rota /unsubscribe da API.  
+   *   exibir_topicos():  
+    Descrição: Esta função solicita ao broker uma lista dos tópicos disponíveis e os exibe, usando a rota /display_topics da API.  
+   *   on_device(topic):  
+    Descrição: Esta função envia um comando para ligar o sensor associado ao tópico fornecido ao broker, usando a rota /control_device.  
+   *   change_data(topic, change):  
+    Descrição: Esta função envia um comando para alterar os dados do sensor associado ao tópico fornecido ao broker, usando a rota /control_device.  
+   *   off_device(topic):  
+    Descrição: Esta função envia um comando para desligar o sensor associado ao tópico fornecido ao broker, usando a rota /control_device.  
+   *   get_messages_from_topic(topic):  
+    Descrição: Esta função solicita ao broker as últimas mensagens recebidas em um tópico específico e as exibe, usando a rota /get_messages.  
+   *  thread_get_messages(event, topic):  
+    Descrição: Esta função é executada em uma thread separada para receber continuamente as mensagens de um tópico específico e exibi-las, usando a rota /get_messages com várias chamadas dentro de um loop.  
 
-*   unsubscribe_to_topic(topic):
-    Descrição: Esta função permite que o cliente cancele a inscrição em um tópico específico no broker, usando a rota /unsubscribe da API.
-
-*   exibir_topicos():
-    Descrição: Esta função solicita ao broker uma lista dos tópicos disponíveis e os exibe, usando a rota /display_topics da API.
-
-*   on_device(topic):
-    Descrição: Esta função envia um comando para ligar o sensor associado ao tópico fornecido ao broker, usando a rota /control_device.
-
-*   change_data(topic, change):
-    Descrição: Esta função envia um comando para alterar os dados do sensor associado ao tópico fornecido ao broker, usando a rota /control_device.
-
-*   off_device(topic):
-    Descrição: Esta função envia um comando para desligar o sensor associado ao tópico fornecido ao broker, usando a rota /control_device.
-
-*   get_messages_from_topic(topic):
-    Descrição: Esta função solicita ao broker as últimas mensagens recebidas em um tópico específico e as exibe, usando a rota /get_messages.
-
-*  thread_get_messages(event, topic):
-    Descrição: Esta função é executada em uma thread separada para receber continuamente as mensagens de um tópico específico e exibi-las, usando a rota /get_messages com várias chamadas dentro de um loop.
-
-* Comunicação HTTP:
+   * Comunicação HTTP:  
     O cliente utiliza o protocolo HTTP (Hypertext Transfer Protocol) para se comunicar com o servidor broker. Ele envia solicitações HTTP para diferentes rotas do servidor e recebe respostas HTTP correspondentes.
 
-*   Métodos HTTP Utilizados:
+   *   Métodos HTTP Utilizados:
     POST: Utilizado para inscrever-se em um tópico, desinscrever-se de um tópico.
     GET: Utilizado para exibir os tópicos disponíveis, obter mensagens de um tópico.
-    PUT: Utilizado para solicitar a aplicação que ligue, desligue o sensor e também serve para alterar os dados que estão sendo enviados.
+    PUT: Utilizado para solicitar a aplicação que ligue, desligue o sensor e também serve para alterar os dados de temperatura que estão sendo enviados.
 
-* Observações Importantes:
-    Certificar que o servidor broker esteja ativo e operacional para garantir o funcionamento adequado do cliente.
+   * Observações Importantes:
+  Certificar que o servidor broker esteja ativo e operacional para garantir o funcionamento adequado do cliente.
 
-    O cliente utiliza comunicação HTTP para interagir com o servidor broker, então verificar a conectividade de rede adequada antes de usar o cliente.
-
-
-*ORDEM DE INICIALIZAÇÃO Broker -> Sensor <-> Cliente
-* É importante que o broker seja executado primeiro
-* Depois o sensor ou cliente podem ser executados sem problemas
+    O cliente utiliza comunicação HTTP para interagir com o servidor broker, então verificar a conectividade de rede adequada antes de executar o cliente.
 
 
-# ESPICIFICAÇÕES DOS CÓDIGOS - (BAREMA)
+* ORDEM DE INICIALIZAÇÃO (1°) Broker -> (2° ou 3°) Sensor <-> (2° ou 3°) Cliente.
+   *   É importante que o broker seja executado primeiro.
+   *   Depois o sensor ou cliente podem ser executados sem problemas.
+
+
+__CONCLUSÃO:__
+
+
+
+
+# ESPECIFICAÇÕES DOS CÓDIGOS - (BAREMA)
 
 __(1) Arquitetura da solução (componentes e mensagens)__
 Como a arquitetura foi desenvolvida. Quais os componentes e como eles se comunicam. Qual a ordem das mensagens trocadas. 
@@ -453,7 +451,7 @@ Que tipo de formatação foi usada para transmitir os dados, permitindo que nós
                 tcp_socket.send(str_change.encode()) # Para enviar nova temperatura para o sensor
 
 
-* Tratamento de conexões simultâneas  (threads)###############################################################
+* (6) Tratamento de conexões simultâneas  (threads)
 Como threads foram usados para tornar o sistema mais eficiente? Há problemas de concorrência decorrentes do uso de threads? Se sim, como estas
 questões foram tratadas?
 
@@ -474,7 +472,7 @@ Não existe problemas de concorrência identificadas.
 
 
 
-__(6) Gerenciamento do dispositivo__
+__(7) Gerenciamento do dispositivo__
 É possível gerenciar o dispositivo (parar, alterar valores, etc) ? Isso pode ser feito remotamente? E via uma interface do próprio dispositivo?
     
 É possível gerenciar o dispositivo remotamente através da API implementada. O cliente pode fazer requisições para envio de comandos para ligar, desligar e alterar valores do dispositivo via API do broker que irá mandar os comandos de gerenciamento via TCP.
@@ -484,13 +482,13 @@ A interface do proprio dispositivo funciona corretamente, ambos podem ligar, des
 
 
 
-__(7) Desempenho (uso de cache no Broker, filas, threads, etc.)__
+__(8) Desempenho (uso de cache no Broker, filas, threads, etc.)__
 
 O sistema utiliza algum mecanismos para melhorar o tempo de resposta para a aplicação?
     No geral, o uso de threads e a arquitetura assíncrona do servidor UDP e Flask contribuem para um melhor desempenho e tempo de resposta mais rápido para a aplicação. 
 
 
-__(8) Confiabilidade da solução (tratamento das conexões)__
+__(9) Confiabilidade da solução (tratamento das conexões)__
 Tirando e recolocando o cabo de algum dos nós, o sistema continua funcionando?
 
 Ao retirar a rede do broker o sensor continua normalmente, sem aparecer erros, mas o cliente para de funcionar, mas quando a conexão com rede é estabelecida, tudo volta a funcionar normalmente, sem necessidade de executar novamente.
