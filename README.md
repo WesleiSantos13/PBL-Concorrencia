@@ -1,7 +1,7 @@
 # PBL-Concorrência
 
                                             COMO USAR O PROGRAMA   
-#   Configuração Inicial
+   Configuração Inicial
     
     O sistema tem como código fonte a linguagem python, por isso é necessário que o ambiente que irá rodar o programa tenha o python instalado.
         Link para baixar o python nos diferentes sistemas operacionais: https://www.python.org/downloads/
@@ -13,7 +13,7 @@
     E instalar a biblioteca requests, que é responsável pelas solicitações dos clientes via http. Instale  usando o prompt de comando com:
         pip install requests (Apenas os clientes/aplicações necessitam da requests)
 
-#    Utilização do Programa (Execução) #### #####
+    Utilização do Programa (Execução)
 
 # Servidor(server.py)
     O servidor é responsável por gerenciar as conexões entre os clientes e os sensores.
