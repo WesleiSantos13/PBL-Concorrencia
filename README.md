@@ -1,6 +1,6 @@
 # PBL-Concorrência
 
-                                            COMO USAR O PROGRAMA   
+ #                                           COMO USAR O PROGRAMA   
    Configuração Inicial
     
     O sistema tem como código fonte a linguagem python, por isso é necessário que o ambiente que irá rodar o programa tenha o python instalado.
