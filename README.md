@@ -303,27 +303,27 @@ __CONCLUSÃO:__
 
 # ESPECIFICAÇÕES/REQUISITOS DO SISTEMA - (BAREMA):
 
-__(1) Arquitetura da solução (componentes e mensagens)__
-Como a arquitetura foi desenvolvida. Quais os componentes e como eles se comunicam. Qual a ordem das mensagens trocadas. 
-A arquitetura desenvolvida consiste em três componentes principais: o cliente, o servidor e o sensor. Eles interagem da seguinte forma:
+__(1) Arquitetura da solução (componentes e mensagens)__  
+_Como a arquitetura foi desenvolvida. Quais os componentes e como eles se comunicam. Qual a ordem das mensagens trocadas?_   
+A arquitetura desenvolvida consiste em três componentes principais: o client, o broker e o device. Eles interagem da seguinte forma:
 
-* Cliente:
-    O cliente é responsável por interagir com o usuário final. Ele fornece uma interface para que o usuário possa se inscrever e desinscrever em tópicos, controlar o sensor (ligando, desligando ou alterando dados(temperatura), visualizar mensagens e outras operações relacionadas.
-    O cliente se comunica com o servidor por meio de requisições HTTP, utilizando as rotas fornecidas pelo servidor para realizar ações como inscrever-se em um tópico, desinscrever-se, solicitar mensagens etc.
-    As operações que o cliente pode realizar incluem inscrever-se em um tópico, desinscrever-se, ligar ou desligar o sensor, alterar dados do sensor e solicitar mensagens de um tópico específico.
+   ![Diagrama de Comunicação](./Fluxo%20comunicação.png)
 
-* Servidor:
+* Client:
+    O cliente se comunica com o broker-servidor por meio de requisições HTTP, utilizando as rotas fornecidas pelo servidor para realizar ações como inscrever-se em um tópico, desinscrever-se, solicitar mensagens, ligar sensor etc.  
+   O cliente recebe as respostas via request/response HTTP, com o servidor enviando respostas que podem incluir confirmações de sucesso ou falha, mensagens de erro, dados de temperatura, ou qualquer outra informação relevante para a operação solicitada. 
+
+* Broker:
     O servidor é responsável por gerenciar as inscrições em tópicos, rotear mensagens do sensor para os clientes inscritos nos tópicos e lidar com as solicitações dos clientes.
     Ele fornece várias rotas HTTP para que os clientes possam interagir, como inscrever-se em um tópico, desinscrever-se, controlar o sensor, solicitar mensagens etc.
     Além disso, o servidor atua como intermediário entre o sensor e os clientes, recebendo as mensagens do sensor e enviando-as aos clientes inscritos nos tópicos correspondentes.
-    O armazenamento de dados mais importante estará no servidor, que o dicionário de tópicos que relaciona os sensores com os clientes, juntamente com suas respectivas mensagens
+    O armazenamento de dados mais importante estará no servidor, que o dicionário de tópicos que relaciona os sensores com os clientes, juntamente com suas respectivas mensagens.  
+     Quando o cliente manda uma solicitação para controlar o sensor, o broker envia um comando de gerenciamento via TCP para ligar, desligar ou alterar a temperatura do sensor.
 
 *  Sensor:
     O sensor é responsável por coletar dados (temperatura, neste caso) e enviar esses dados para o servidor. 
     Ele se comunica com o servidor por meio de mensagens UDP, enviando dados formatados para o servidor.
-    O sensor também possui uma interface TCP para aceitar comandos de gerenciamento do servidor, como ligar ou desligar o sensor e alterar dados do sensor.
-
-   __É IMPORTANTE RESSALTAR QUE O PROGRAMA ACEITA VARIOS CLIENTES E VÁRIOS OUTROS SENSORES/DISPOSITIVOS__
+    O sensor também possui um socket TCP para aceitar comandos de gerenciamento do servidor, como ligar ou desligar o sensor e alterar dados do sensor.
 
 *   A ordem das mensagens trocadas é a seguinte:
 
@@ -332,55 +332,59 @@ A arquitetura desenvolvida consiste em três componentes principais: o cliente, 
     * O cliente se comunica com o servidor por meio de requisições HTTP para se inscrever em um tópico, depois disso ele pode utilizar as demais funcionalidades como controlar o sensor(ligar, desligar, alterar os dados enviados), solicitar mensagens etc.
     * Quando o sensor está ligado, ele envia periodicamente mensagens UDP para o servidor com os dados coletados (temperatura).
     * O servidor recebe essas mensagens e as encaminha para a lista de mensagens pendentes dos clientes inscritos no tópico, cada cliente registrado tem sua própria lista de mensagens pendentes.
-    *O cliente pode solicitar mensagens do tópico em que está inscrito, e o servidor responde com as mensagens disponíveis na lista de mensagens pendentes.
+    * O cliente pode solicitar mensagens do tópico em que está inscrito, e o servidor responde com as mensagens disponíveis na lista de mensagens pendentes.
+
 
   
 
 __(2) Protocolo de comunicação entre dispositivo e Broker - camada de aplicação__  
-Que protocolos de comunicação foram desenvolvidos entre os dispositivos e o broker. Como é a "conversa" entre os dispositivos e o broker.  
-Entre os dispositivos (aplicação) e o broker, foram desenvolvidos um protocolo de comunicação na camada de aplicação: O HTTP.
+_Que protocolos de comunicação foram desenvolvidos entre os dispositivos e o broker. Como é a "conversa" entre os dispositivos e o broker?_  
+Entre os dispositivos (aplicação) e o broker, foi utilizado o HTTP.  
 
-* Protocolo HTTP (Hypertext Transfer Protocol):
-    O protocolo HTTP é utilizado para que os clientes/aplicação realizem solicitações de inscrição em tópicos, desinscrição de tópicos, controle do dispositivo e obtenção de mensagens do broker.
-    A "conversa" entre os clientes/aplicação e o broker utilizando HTTP ocorre por meio de requisições HTTP, como POST, GET e PUT, enviadas pelos clientes para os endpoints específicos do broker.
+* Protocolo HTTP (Hypertext Transfer Protocol):  
+    O protocolo HTTP é utilizado para que os clientes/aplicação realizem solicitações de inscrição em tópicos, desinscrição de tópicos, controle do dispositivo e obtenção de mensagens do broker.  
+    A "conversa" entre os clientes/aplicação e o broker utilizando HTTP ocorre por meio de requisições HTTP, como POST, GET e PUT, enviadas pelos clientes para os endpoints específicos do broker.  
     Por exemplo, um cliente pode enviar uma requisição POST para se inscrever em um tópico, ou uma requisição GET para obter as mensagens de um tópico.
     O broker, por sua vez, processa essas requisições e executa as operações correspondentes, como adicionar ou remover um cliente de um tópico, controlar o dispositivo ou retornar as mensagens pendentes.
 
 
 
-__(3)Protocolo de comunicação entre dispositivo e Broker - camada de transporte__  
-Que protocolos de comunicação foram utilizados entre os dispositivos e o broker. TPC e/ou UDP? Em que situações e porque? 
+__(3) Protocolo de comunicação entre dispositivo e Broker - camada de transporte__  
+_Que protocolos de comunicação foram utilizados entre os dispositivos e o broker. TPC e/ou UDP? Em que situações e porque?_  
 No sistema proposto, foram desenvolvidos dois protocolos de comunicação distintos entre os dispositivos (sensores) e o broker (servidor):
 
-* Protocolo de Comunicação UDP entre Dispositivos e Broker:  
+* __Protocolo de Comunicação UDP entre Dispositivos e Broker:__  
   Este protocolo é utilizado para que os dispositivos (sensores) informem sua existência e enviem dados para o broker (servidor).  
-  A conversa entre os dispositivos e o broker ocorre da seguinte maneira:  
-    O dispositivo inicializa e cria um socket UDP.
-    Quando ele está executando, o sensor possui um menu para criar um tópico, ligar, desligar e alterar temperatura.
-    Quando o sensor cria um tópico, é enviada uma mensagem de registro para endereço IP e porta do servidor, e o tópico é criado no dicionário de registro que está no servidor.
-    Em seguida, se o dispositivo for ligado, ele envia uma mensagem UDP formatada em JSON para o servidor, com os dados (temperatura), o tópico que vai encaminhar a mensagem, e a ação que ligar.
-    O servidor recebe essa mensagem e processa as informações, colocando essas mensagens na lista de mensagens pendentes de cada cliente inscrito (se houver) no tópico correspondentes. Essa lista de mensagens pendentes está no dicionário de registro (topic_subscriptions).
+  A conversa entre os dispositivos e o broker ocorre da seguinte maneira:
+  
+    - O dispositivo inicializa e cria um socket UDP.  
+    - Quando ele está executando, o sensor possui um menu para criar um tópico, ligar, desligar e alterar temperatura.  
+    - Quando o sensor cria um tópico, é enviada uma mensagem de registro para endereço IP e porta do broker, e o tópico é criado no dicionário de registro que está no broker.  
+    - Em seguida, se o dispositivo for ligado, ele envia mensagens UDP formatada em JSON para o broker, com os dados (temperatura), o tópico que vai encaminhar a mensagem, e a ação que ligar.  
+    - O servidor recebe essa mensagem e processa as informações, colocando essas mensagens na lista de mensagens pendentes de cada cliente inscrito (se houver) no tópico correspondentes. Essa lista de mensagens pendentes está no dicionário de registro (topic_subscriptions).
     
-O envio de dados de sensoriamento, como leituras de temperatura, é uma operação contínua e de alta frequência, onde a prioridade é a eficiência e  velocidade de transmissão. Onde, perdas ocasionais de pacotes não são críticas, pois novos dados serão gerados em intervalos regulares. O UDP é adequado para este fim, pois permite o envio rápido e assíncrono de dados, sem a sobrecarga adicional associada ao TCP. 
+O envio de dados de sensoriamento, como leituras de temperatura, é uma operação contínua, onde a prioridade é a eficiência e  velocidade de transmissão. Onde, perdas ocasionais de pacotes não são críticas, pois novos dados serão gerados em intervalos regulares. O UDP é adequado para este fim, pois permite o envio rápido e assíncrono de dados, sem a sobrecarga adicional associada ao TCP. 
 
 
 
-* Protocolo de Comunicação TCP entre Dispositivos e Broker para Comandos de Gerenciamento:
+* __Protocolo de Comunicação TCP entre Dispositivos e Broker para Comandos de Gerenciamento:__
   Este protocolo é utilizado para que o broker (servidor) envie comandos de gerenciamento para os dispositivos (sensores), como ligar/desligar o sensor e alterar dados do sensor.  
-  A conversa entre os dispositivos e o broker ocorre da seguinte maneira:  
-    O dispositivo cria um socket TCP e fica aguardando conexões.
-    Quando o broker envia um comando de gerenciamento para um dispositivo específico (mediante a requisição de um cliente), ele estabelece uma conexão TCP com o dispositivo.
-    O broker envia o comando de gerenciamento (por exemplo, "ligar", "desligar" ou alteração de dados, mas nesse caso o broker só recebe o dado que vai ser alterado, ex: 11 que é referente a temperatura a ser atualizada) para o dispositivo por meio da conexão TCP.
-    O dispositivo recebe o comando, interpreta e executa a ação correspondente.
-    Após a execução do comando, o dispositivo fecha a conexão TCP.
-    Este protocolo permite uma comunicação bidirecional entre o broker e os dispositivos para fins de controle e gerenciamento do sensor.
+ A conversa entre os dispositivos e o broker ocorre da seguinte maneira:
 
-A escolha de usar o TCP para os comandos de gerenciamento, como ligar/desligar o sensor e alterar dados, deve-se ao fato de que essas operações são críticas, exigindo confiabilidade e garantia de entrega. Portanto, o uso do TCP é adequado para assegurar a correta execução desses comandos e manter o estado do dispositivo de forma segura.
+   - O dispositivo cria um socket TCP e fica aguardando conexões.  
+   - Quando o broker envia um comando de gerenciamento para um dispositivo específico (mediante a requisição de um cliente), ele estabelece uma conexão TCP com o dispositivo.  
+   - O broker envia o comando de gerenciamento (por exemplo, "ligar", "desligar" ou alteração de dados, mas nesse caso o broker só recebe o dado que vai ser alterado, ex: 11 que é referente a temperatura a ser atualizada) para o dispositivo por meio da conexão TCP.  
+   - O dispositivo recebe o comando, interpreta e executa a ação correspondente.  
+   - Após a execução do comando, o dispositivo fecha a conexão TCP.  
+  
+
+A escolha de usar o TCP para os comandos de gerenciamento deve-se ao fato de que essas operações são críticas, exigindo confiabilidade e garantia de entrega.  
+Portanto, o uso do TCP é adequado para assegurar a correta execução desses comandos e manter o estado do dispositivo de forma segura.
 
 
 
-__(4)Interface da Aplicação (REST)__
-Quais são os verbos e rotas executados na camada de aplicação.
+__(4) Interface da Aplicação (REST)__  
+_Quais são os verbos e rotas executados na camada de aplicação?_
 
 Na camada de aplicação, a interface da aplicação utiliza uma arquitetura REST (Representational State Transfer), que utiliza os seguintes verbos HTTP para operações:
 
@@ -389,25 +393,25 @@ GET: Utilizado para recuperar dados de um recurso.
 PUT: Utilizado para atualizar um recurso existente com novos dados.
 DELETE: Utilizado para excluir um recurso existente.
 
-Rotas e os verbos HTTP executados na camada de aplicação:
-* /subscribe:
-* Verbo: POST
-Descrição: Inscreve um cliente em um tópico específico.
-* /unsubscribe:
-* Verbo: POST
-Descrição: Desinscreve um cliente de um tópico específico.
-* /display_topics:
-* Verbo: GET
-Descrição: Exibe os tópicos criados.
-* /control_device:
-* Verbo: PUT
- Descrição: Controla um dispositivo (ligar, desligar ou alterar temperatura).
-* /get_messages:
-* Verbo: GET
-Descrição: Obtém as mensagens de um tópico específico para um cliente.
+* Rotas e os verbos HTTP executados na camada de aplicação:
+   - /subscribe:
+    Verbo: POST
+   Descrição: Inscreve um cliente em um tópico específico.
+   - /unsubscribe:
+    Verbo: POST
+   Descrição: Desinscreve um cliente de um tópico específico.
+   - /display_topics:
+    Verbo: GET
+   Descrição: Exibe os tópicos criados.
+   - /control_device:
+    Verbo: PUT
+    Descrição: Controla um dispositivo (ligar, desligar ou alterar temperatura).
+   - /get_messages:
+    Verbo: GET
+   Descrição: Obtém as mensagens de um tópico específico para um cliente.
 
-__(5) Formatação, envio e tratamento de dados__
-Que tipo de formatação foi usada para transmitir os dados, permitindo que nós diferentes compreendam as mensagens trocadas.
+__(5) Formatação, envio e tratamento de dados__  
+_Que tipo de formatação foi usada para transmitir os dados, permitindo que nós diferentes compreendam as mensagens trocadas._
 
 *  Para permitir que nós diferentes compreendam as mensagens trocadas entre os dispositivos e o broker na camada de aplicação, foi utilizada a formatação de dados em JSON (JavaScript Object Notation).
 
@@ -451,9 +455,9 @@ Que tipo de formatação foi usada para transmitir os dados, permitindo que nós
                 tcp_socket.send(str_change.encode()) # Para enviar nova temperatura para o sensor
 
 
-* (6) Tratamento de conexões simultâneas  (threads)
-Como threads foram usados para tornar o sistema mais eficiente? Há problemas de concorrência decorrentes do uso de threads? Se sim, como estas
-questões foram tratadas?
+  __(6) Tratamento de conexões simultâneas  (threads)__  
+_Como threads foram usados para tornar o sistema mais eficiente? Há problemas de concorrência decorrentes do uso de threads? Se sim, como estas
+questões foram tratadas?_
 
 As threads foram utilizadas no sistema para lidar com a necessidade de paralelismo entre os códigos. Abaixo está como as threads foram usadas para tornar o sistema mais eficiente:
 
@@ -472,8 +476,8 @@ Não existe problemas de concorrência identificadas.
 
 
 
-__(7) Gerenciamento do dispositivo__
-É possível gerenciar o dispositivo (parar, alterar valores, etc) ? Isso pode ser feito remotamente? E via uma interface do próprio dispositivo?
+__(7) Gerenciamento do dispositivo__  
+_É possível gerenciar o dispositivo (parar, alterar valores, etc) ? Isso pode ser feito remotamente? E via uma interface do próprio dispositivo?_
     
 É possível gerenciar o dispositivo remotamente através da API implementada. O cliente pode fazer requisições para envio de comandos para ligar, desligar e alterar valores do dispositivo via API do broker que irá mandar os comandos de gerenciamento via TCP.
 
@@ -482,14 +486,13 @@ A interface do proprio dispositivo funciona corretamente, ambos podem ligar, des
 
 
 
-__(8) Desempenho (uso de cache no Broker, filas, threads, etc.)__
-
-O sistema utiliza algum mecanismos para melhorar o tempo de resposta para a aplicação?
+__(8) Desempenho (uso de cache no Broker, filas, threads, etc.)__  
+_O sistema utiliza algum mecanismos para melhorar o tempo de resposta para a aplicação?_  
     No geral, o uso de threads e a arquitetura assíncrona do servidor UDP e Flask contribuem para um melhor desempenho e tempo de resposta mais rápido para a aplicação. 
 
 
 __(9) Confiabilidade da solução (tratamento das conexões)__
-Tirando e recolocando o cabo de algum dos nós, o sistema continua funcionando?
+_Tirando e recolocando o cabo de algum dos nós, o sistema continua funcionando?_  
 
 Ao retirar a rede do broker o sensor continua normalmente, sem aparecer erros, mas o cliente para de funcionar, mas quando a conexão com rede é estabelecida, tudo volta a funcionar normalmente, sem necessidade de executar novamente.
 
