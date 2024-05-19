@@ -111,7 +111,7 @@ Inicialmente execute o broker (wesleisantoss/server), depois coloque o ip onde e
 
 # RELATÓRIO 
 
-__INTRODUÇÃO__
+__INTRODUÇÃO:__  
     O projeto em questão consiste no desenvolvimento de um sistema de monitoramento de temperatura, que utiliza uma arquitetura de comunicação baseada em um modelo de publish-subscribe (publicação e inscrição). O sistema é composto por três componentes principais: o sensor de temperatura, os clientes (ou dispositivos consumidores) e o servidor central (broker) responsável por gerenciar a comunicação entre eles.
 
 * O sensor de temperatura é responsável por coletar dados de temperatura e enviar essas informações periodicamente para o servidor central. Ele também pode receber comandos de controle remoto, como ligar, desligar e alterar manualmente os dados de temperatura.  
@@ -121,90 +121,82 @@ __INTRODUÇÃO__
 * A comunicação entre os componentes do sistema é realizada principalmente por meio de sockets UDP (User Datagram Protocol) para transmissão eficiente de dados em tempo real, sockets TCP (Transmission Control Protocol) para comunicação de controle mais confiável, e requisições HTTP (Hypertext Transfer Protocol) usada para interações entre os clientes e o servidor web Flask.
     
 
-__FUNCIONALIDADES:__
+__FUNCIONALIDADES:__  
 
-__FILE: server.py__
+__FILE: server.py__  
 Esse file é destinado para o broker-servidor em que ele possui uma API para atender as solicitações dos clientes.  
 O servidor funciona da seguinte maneira, inicialmente a API é executada em uma threading e o servidor irá ficar esperando mensagens em loop, essas abordagens foram utilizadas para a execução de ambas não se interrompessem. Para armazenar os dados foram utilizados listas e dicionários.
 
 __Armazenamento de Dados:__     
-* Dicionário topic_subscriptions:
-        Propósito: Este dicionário é usado para armazenar as inscrições dos clientes em cada tópico, mensagens pendentes e o estado do sensor.
-        Estrutura:   {"nome_do_topico": {"clients": {("endereco_ip", numero_da_porta): [mensagens_pendentes]},state": "estado_do_sensor"},...}
-                                
-        Descrição: Cada chave representa o nome de um tópico, cujo o nome do topico será o nome do sensor.
-       
-        O valor correspondente é um dicionário que contém duas chaves:
-           
-           * "clients": Armazena os clientes inscritos no tópico, onde a chave é uma tupla contendo o endereço IP e o número da porta do cliente, e o valor é uma lista de mensagens pendentes para esse cliente.
-          
-           * "state": Indica o estado do sensor associado ao tópico (por exemplo, "Ligado" ou "Desligado").
+* Dicionário topic_subscriptions:  
+  * Propósito: Este dicionário é usado para armazenar as inscrições dos clientes em cada tópico, mensagens pendentes e o estado do sensor.  
+  * Estrutura:   {"nome_do_topico": {"clients": {("endereco_ip", numero_da_porta): [mensagens_pendentes]},state": "estado_do_sensor"},...}                       
+  * Descrição: Cada chave representa o nome de um tópico, cujo o nome do topico será o nome do sensor.   
+  * O valor correspondente é um dicionário que contém duas chaves:  
+    * "clients": Armazena os clientes inscritos no tópico, onde a chave é uma tupla contendo o endereço IP e o número da porta do cliente, e o valor é uma lista de mensagens pendentes para esse cliente.
+    * "state": Indica o estado do sensor associado ao tópico (por exemplo, "Ligado" ou "Desligado").
 
 * Dicionário endereco_disp:
-        Propósito: Este dicionário é usado para armazenar as informações de endereço (endereço IP e porta) dos sensores.
-        Estrutura: { "nome_do_topico": ("endereco_ip", numero_da_porta), ...}
+  * Propósito: Este dicionário é usado para armazenar as informações de endereço (endereço IP e porta) dos sensores.  
+  * Estrutura: { "nome_do_topico": ("endereco_ip", numero_da_porta), ...}  
+  * Descrição: Cada chave representa o nome de um tópico, cujo o nome do topico será o nome do sensor.  
+  * O valor correspondente é uma tupla contendo o endereço IP e o número da porta do sensor associado ao tópico.  
 
-        Descrição: Cada chave representa o nome de um tópico, cujo o nome do topico será o nome do sensor.
-        O valor correspondente é uma tupla contendo o endereço IP e o número da porta do sensor associado ao tópico.
+Esses dicionários são essenciais para o funcionamento do servidor, pois mantêm o controle das inscrições dos clientes nos tópicos, as mensagens pendentes para cada cliente, o estado dos sensores e os endereços dos sensores. Isso permite que o servidor encaminhe mensagens aos clientes corretos, controle os sensores e mantenha um registro das inscrições e do estado dos dispositivos.
 
-    Esses dicionários são essenciais para o funcionamento do servidor, pois mantêm o controle das inscrições dos clientes nos tópicos, as mensagens pendentes para cada cliente, o estado dos sensores e os endereços dos sensores. Isso permite que o servidor encaminhe mensagens aos clientes corretos, controle os sensores e mantenha um registro das inscrições e do estado dos dispositivos.
-
-__Comunicações do Servidor__
+__Comunicações do Broker:__
     
-   * Comunicação HTTP:
-    Protocolo: HTTP (Hypertext Transfer Protocol)
-    Finalidade: A comunicação HTTP é usada para interações entre os clientes e o servidor web Flask. Os clientes enviam solicitações HTTP para o servidor através de endpoints específicos (por exemplo, /subscribe, /controlar_sensor) usando os métodos HTTP adequados (POST, GET, PUT). O servidor processa essas solicitações e retorna as respostas HTTP correspondentes.
-    Mecanismo: O framework flask é usado para criar uma aplicação no servidor web que escuta solicitações HTTP dos clientes. Os endpoints definidos na aplicação correspondem a diferentes ações que os clientes podem realizar. Por exemplo, inscrever-se em um tópico, controlar sensores, obter mensagens, etc.
+* __Comunicação HTTP:__  
+__Protocolo:__ HTTP (Hypertext Transfer Protocol)  
+__Finalidade:__ A comunicação HTTP é usada para interações entre os clientes e o servidor web Flask. Os clientes enviam solicitações HTTP para o servidor através de endpoints específicos (por exemplo, /subscribe, /controlar_sensor) usando os métodos HTTP adequados (POST, GET, PUT). O servidor processa essas solicitações e retorna as respostas HTTP correspondentes.  
+__Mecanismo__: O framework flask é usado para criar uma aplicação no servidor web que escuta solicitações HTTP dos clientes. Os endpoints definidos na aplicação correspondem a diferentes ações que os clientes podem realizar. Por exemplo, inscrever-se em um tópico, controlar sensores, obter mensagens, etc.
 
-   - As rotas da API são:
-    
-* Inscrever-se em um Tópico:
-    Endpoint: /subscribe
-    Método HTTP: POST
-    Payload JSON Esperado: {"topic": "nome_do_topico", "ip": "endereco_ip", "port": numero_da_porta}
-
-    Descrição: Este endpoint permite que um cliente se inscreva em um tópico específico para receber mensagens do sensor fornecendo o nome do tópico, o endereço IP do cliente e o número da porta.
-    ----------------------------------------------------------------------
-
-* Desinscrever-se de um Tópico:
-    Endpoint: /unsubscribe
-    Método HTTP: POST
-    Payload JSON Esperado:{"topic": "nome_do_topico", "ip": "endereco_ip", "port": numero_da_porta}
-    Descrição: Este endpoint permite que um cliente se desinscreva de um tópico específico fornecendo o nome do tópico, o endereço IP do cliente e o número da porta.
+  * As rotas da API são:   
+    Inscrever-se em um Tópico:
+     *   Endpoint: /subscribe
+     *   Método HTTP: POST  
+     *   Payload JSON Esperado: {"topic": "nome_do_topico", "ip": "endereco_ip", "port": numero_da_porta}
+     *  scrição: Este endpoint permite que um cliente se inscreva em um tópico específico para receber mensagens do sensor fornecendo o nome do tópico, o endereço IP do cliente e o número da porta.
+ 
+    Desinscrever-se de um Tópico:  
+     * Endpoint: /unsubscribe  
+     * Método HTTP: POST  
+     * Payload JSON Esperado:{"topic": "nome_do_topico", "ip": "endereco_ip", "port": numero_da_porta}  
+     * Descrição: Este endpoint permite que um cliente se desinscreva de um tópico específico fornecendo o nome do tópico, o endereço IP do cliente e o número da porta.  
     
 
-* Exibir Tópicos Disponíveis:
-    Endpoint: /display_topics
-    Método HTTP: GET
-    Descrição: Este endpoint retorna a lista de todos os tópicos disponíveis aos quais os clientes podem se inscrever.
+    Exibir Tópicos Disponíveis:  
+    *    Endpoint: /display_topics  
+    *    Método HTTP: GET  
+    *    Descrição: Este endpoint retorna a lista de todos os tópicos disponíveis aos quais os clientes podem se inscrever.  
     
 
-* Controlar Sensor (Ligar/Desligar):
-    Endpoint: /control_device
-    Método HTTP: PUT
-    Payload JSON Esperado: { "topic": "nome_do_topico", "action": "ligar_ou_desligar", "ip": "endereco_ip", "port": numero_da_porta}
-    Descrição: Este endpoint permite controlar o estado de um sensor de um determinado tópico. O sensor deve estar previamente inscrito no tópico. A ação pode ser "ligar" ou "desligar", além disso essa rota verifica se o cliente que quer controlar o sensor está inscrito no tópico, pois caso contrário ele não poderá controlar o sensor.
+    Controlar Sensor (Ligar/Desligar/Alterar temperatura):
+    *   Endpoint: /control_device  
+    *   Método HTTP: PUT  
+    *   Payload JSON Esperado: { "topic": "nome_do_topico", "action": "ligar_ou_desligar_ou_alterar", "ip": "endereco_ip", "port": numero_da_porta}  
+    *   Descrição: Este endpoint permite controlar o estado e temperatura de um sensor de um determinado tópico. O sensor deve estar previamente inscrito no tópico. A ação pode ser "ligar", "desligar" ou "Alterar", além disso essa rota verifica se o cliente que quer controlar o sensor está inscrito no tópico, pois caso contrário ele não poderá controlar o sensor.
     
 
-* Obter Mensagens de um Tópico:
-    Endpoint: /get_messages
-    Método HTTP: GET
-    Payload JSON Esperado: {"topic": "nome_do_topico",  "ip": "endereco_ip", "port": numero_da_porta}
-    Descrição: Este endpoint permite que um cliente obtenha as mensagens pendentes de um determinado tópico, fornecendo o nome do tópico, o endereço IP do cliente e o número da porta.
+    Obter Mensagens de um Tópico:
+    *   Endpoint: /get_messages  
+    *   Método HTTP: GET  
+    *   Payload JSON Esperado: {"topic": "nome_do_topico",  "ip": "endereco_ip", "port": numero_da_porta}  
+    *   Descrição: Este endpoint permite que um cliente obtenha as mensagens pendentes de um determinado tópico, fornecendo o nome do tópico, o endereço IP do cliente e o número da porta.
 
 
-* Comunicação UDP (User Datagram Protocol):
-    Protocolo: UDP (User Datagram Protocol)
-    Finalidade: A comunicação UDP é utilizada para receber mensagens do sensor.
-    Mecanismo: Um socket UDP é criado no servidor e associado a um endereço IP e porta específicos. O servidor espera por mensagens UDP vindas do sensor nesse socket. Quando uma mensagem é recebida, ela é processada e encaminhada para a lista de mensagens pendentes de cada cliente inscrito no tópico correspondente. A função responsável por receber as mensagens de chama (process_messages).
+* __Comunicação UDP:__  
+    __Protocolo:__ UDP (User Datagram Protocol)  
+    __Finalidade:__ A comunicação UDP é utilizada para receber mensagens do sensor.  
+    __Mecanismo:__ Um socket UDP é criado no servidor e associado a um endereço IP e porta específicos. O servidor espera por mensagens UDP vindas do sensor nesse socket. Quando uma mensagem é recebida, ela é processada e encaminhada para a lista de mensagens pendentes de cada cliente inscrito no tópico correspondente. A função responsável por receber as mensagens de chama (process_messages).
 
   * Função (process_messages)
         A função fica responsável pelo processamento e encaminhamento de mensagens recebidas pelo servidor a partir do sensor. Ele interpreta o conteúdo das mensagens, atualiza o estado dos tópicos e dos sensores, e encaminha as mensagens pertinentes aos clientes inscritos. Essa função é importantíssima para o funcionamento do sistema de comunicação entre o sensor e os clientes.
 
-* Comunicação TCP (Transmission Control Protocol):
-    Protocolo: TCP (Transmission Control Protocol)
-    Finalidade: A comunicação TCP é usada para enviar comandos de ligar, desligar ou alterar a temperatura do sensor.
-    Mecanismo: Quando um cliente envia um comando para ligar desligar, ou alterar dados do sensor, o servidor cria um novo socket TCP para se comunicar com o sensor associado ao tópico relevante. O servidor se conecta ao endereço IP e porta do sensor usando esse socket TCP e envia o comando apropriado. Isso permite controlar o estado e os dados do sensor de forma confiável. A rota que faz essa comunicação é a de controlar o sensor.(/control_device)
+* __Comunicação TCP:__  
+    __Protocolo:__ TCP (Transmission Control Protocol)  
+    __Finalidade:__ A comunicação TCP é usada para enviar comandos de ligar, desligar ou alterar a temperatura do sensor.  
+    __Mecanismo:__ Quando um cliente envia um comando para ligar desligar, ou alterar dados do sensor, o servidor cria um novo socket TCP para se comunicar com o sensor associado ao tópico relevante. O servidor se conecta ao endereço IP e porta do sensor usando esse socket TCP e envia o comando apropriado. Isso permite controlar o estado e os dados do sensor de forma confiável. A rota que faz essa comunicação é a de controlar o sensor (/control_device).
 
 
 
