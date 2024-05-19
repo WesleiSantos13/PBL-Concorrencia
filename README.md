@@ -1,101 +1,110 @@
 # PBL-Concorrência
 
- #                                           COMO USAR O PROGRAMA   
-   Configuração Inicial
-    
-    O sistema tem como código fonte a linguagem python, por isso é necessário que o ambiente que irá rodar o programa tenha o python instalado.
-        Link para baixar o python nos diferentes sistemas operacionais: https://www.python.org/downloads/
-        A versão utilizada foi a 3.12
-    
-    Depois é necessário instalar a API do flask, usando o comando pip do python no prompt de comando:
-        pip install flask (Apenas o servidor necessita do flask)
-    
-    E instalar a biblioteca requests, que é responsável pelas solicitações dos clientes via http. Instale  usando o prompt de comando com:
-        pip install requests (Apenas os clientes/aplicações necessitam da requests)
-
-    Utilização do Programa (Execução)
-
-# Servidor(server.py)
-    O servidor é responsável por gerenciar as conexões entre os clientes e os sensores.
-    Iniciar o Servidor: Execute o arquivo server.py utilizando Python. Isso iniciará o servidor e estará pronto para aceitar conexões de clientes e sensores. 
-
-
-# Sensor(device.py)
-O sensor é responsável por enviar informações de temperatura para o servidor.
-
-Ativação do Sensor: Execute o arquivo device.py utilizando Python. Isso iniciará o sensor e irá aparecer o menu para enviar dados paara o servidor.
-Desativação do Sensor: Basta fechar a janela ou interromper a execução do programa para desativar o sensor.
- # Funcionalidades do sensor
-
-   * 0. Criar um tópico para enviar mensagem:
-    Selecione a opção 0 para Criar um tópico para enviar mensagem, para os clientes.
-    O sensor cria um tópico no servidor que ira armazenar as inscrições dos clientes.
-
-   * 1. Ligar o Sensor:
-    Selecione a opção "1" para ligar o sensor de temperatura.
-    O sensor começará a enviar dados de temperatura para o servidor.
+__COMO USAR O PROGRAMA:__ 
    
-   * 2. Desligar o Sensor:
-    Selecione a opção "2" para desligar o sensor de temperatura.
-    O sensor interrompe o envio de dados de temperatura para o servidor.
+Configuração Inicial
     
-   * 3. Alterar Temperatura Manualmente:
-    Selecione a opção "3" para alterar manualmente a temperatura simulada pelo sensor.
+O sistema tem como código fonte a linguagem python, por isso é necessário que o ambiente que irá rodar o programa tenha o python instalado.
+Link para baixar o python nos diferentes sistemas operacionais: https://www.python.org/downloads/ .
+A versão utilizada foi a 3.12.
+    
+Depois é necessário instalar a API do flask, usando o comando pip do python no prompt de comando (Apenas o broker necessita do flask):
+    
+    pip install flask 
+    
+E instalar a biblioteca requests, que é responsável pelas solicitações dos clientes via http (Apenas os clientes/aplicações necessitam das requests). Instale usando o prompt de comando com:
+
+    pip install requests 
+
+__Utilização do Programa (Execução)__
+
+**Broker(server.py)**  
+ O broker é responsável por gerenciar as conexões entre os clientes e os sensores.  
+ Iniciar o Broker: Execute o arquivo server.py utilizando Python. Isso iniciará o servidor e estará pronto para aceitar conexões de clientes e sensores. 
+    
+**Sensor(device.py)**  
+O sensor é responsável por enviar informações de temperatura para o broker.  
+Iniciar Sensor: Execute o arquivo device.py utilizando Python toda vez que quiser um novo sensor de temperatura. Isso iniciará o sensor e irá aparecer o menu para enviar dados para o broker.
+
+* Funcionalidades do sensor:
+
+   * 1. Criar um tópico para enviar mensagem:  
+    Selecione a opção 0 para Criar um tópico para enviar mensagem, para os clientes.  
+    O sensor cria um tópico no broker que irá armazenar as inscrições dos clientes.  
+
+   * 2. Ligar o Sensor:  
+    Selecione a opção "1" para ligar o sensor de temperatura.    
+    O sensor começará a enviar dados de temperatura para o broker.  
+   
+   * 3. Desligar o Sensor:  
+    Selecione a opção "2" para desligar o sensor de temperatura.    
+    O sensor interrompe o envio de dados de temperatura para o broker.  
+    
+   * 4. Alterar Temperatura Manualmente:  
+    Selecione a opção "3" para alterar manualmente a temperatura simulada pelo sensor.    
     Insira a nova temperatura desejada quando solicitado.
    
-   * 4. Sair do Programa:
+   * 5. Sair do Programa:  
     Selecione a opção "4" para sair do programa e encerrar a execução.
 
 
 
-# Cliente/Aplicação(client.py)
-  O cliente é responsável por interagir com o servidor, permitindo que os usuários inscrevam-se em tópicos, recebam mensagens e controlem os sensores.
-  Iniciar o Cliente: Execute o arquivo client.py utilizando Python. Isso iniciará o cliente e exibirá um menu interativo com as opções disponíveis.
-  # Funcionalidades do cliente:
-    1. Inscrever-se em um tópico. 
-        Nessa opção o cliente se registra em topico para receber mensagem do sensor, ele só pode se inscrever em um tópico se o sensor registrar um topico no servidor para encaminhar as mensagens.
+__Cliente/Aplicação(client.py)__  
+O cliente é responsável por interagir com o broker, permitindo que os usuários inscrevam-se em tópicos, recebam mensagens e controlem os sensores.  
+Iniciar o Cliente: Execute o arquivo client.py utilizando Python. Isso iniciará o cliente e exibirá um menu interativo com as opções disponíveis.
+
+* Funcionalidades do cliente:
+
+  * 1. Inscrever-se em um tópico.   
+   Nessa opção o cliente se registra em topico para receber mensagem do sensor, ele só pode se inscrever em um tópico se o sensor registrar um topico no servidor para encaminhar as mensagens.
         
-    2. Desinscrever-se de um tópico.
-        Nessa opção o cliente apaga seu registro do topico pelo qual o sensor envia mensagens, então o cliente para de receber dados do sensor que mandava mensagens através do tópico.
+  * 2. Desinscrever-se de um tópico.  
+   Nessa opção o cliente apaga seu registro do topico pelo qual o sensor envia mensagens, então o cliente para de receber dados do sensor, que mandava mensagens através do tópico.
 
-    3. Ligar um sensor.
-        Só depois de inscrito no topico correspondente ao sensor, o cliente pode pedir para o servidor ligar o sensor 
-        Nessa funcionalidade o cliente pode ligar o sensor, solicitando ao servidor para ligar, selecionando a opção correspondente ao sensor.
-        As mensagens enviadas ficarão sendo armazenadas na lista de mensagens pendentes de TODOS OS CLIENTES que estão inscritos no tópico, até ele consultar as mensagens coma opção 6 ou 7.
+   * 3. Ligar um sensor.  
+    Nessa funcionalidade o cliente pode ligar o sensor, solicitando ao broker para ligar, selecionando a opção correspondente ao sensor.  
+    Só depois de inscrito no topico correspondente ao sensor, o cliente pode pedir para o broker ligar o sensor.  
+    As mensagens enviadas ficarão sendo armazenadas na lista de mensagens pendentes de TODOS OS CLIENTES que estão inscritos no tópico, até ele consultar as mensagens com a opção 6 ou 7.
    
-    4. Alterar o dado de um sensor.
-        Só depois de inscrito no topico correspondente ao sensor, o cliente pode alterar os dados via API, como alterar a temperatura do sensor de temperatura
-        Nessa funcionalidade o cliente pode alterar os dados do sensor, solicitando ao servidor para alterar, selecionando a opção correspondente ao sensor.
+    * 4. Alterar o dado de um sensor.  
+     Nessa funcionalidade o cliente pode alterar a temperatura do sensor, solicitando ao broker para alterar, selecionando o tópico correspondente ao sensor.  
+     Só depois de inscrito no topico correspondente ao sensor, o cliente pode alterar o dado do sensor.
 
-    5. Desligar um sensor.
-        Só depois de inscrito no topico correspondente ao sensor, o cliente pode pedir para o servidor desligar o sensor
-        Nessa funcionalidade o cliente pode desligar o sensor, solicitando ao servidor para desligar
-        As mensagens enviadas deixarão de ser armazenadas na lista de mensagens pendentes do cliente e dos demais que estão no inscritos no tópico.
+    * 5. Desligar um sensor.  
+     Nessa funcionalidade o cliente pode desligar o sensor, solicitando ao broker para desligar.  
+     Só depois de inscrito no topico correspondente ao sensor, o cliente pode pedir para o broker desligar o sensor.  
+     As mensagens enviadas deixarão de ser armazenadas na lista de mensagens pendentes do cliente e dos demais que estão no inscritos no tópico.
    
-    6. Exibir tópicos disponíveis.
-        Exibe os topicos criados pelos sensores
+    * 6. Exibir tópicos disponíveis.  
+     Exibe os topicos criados pelos sensores
 
-    7. Exibir mensagens de um tópico.
-        Nessa funcionalidade o cliente pode receber as mensagens que estão pendentes em sua lista de mensagens pendentes, tudo isso por topico
-        Se o sensor responsável por mandar mensagens nesse tópico estiver desligado, o cliente não pode exibir mensagens.
-    8. Exibir mensagens de um tópico continuamente.
-        Essa opção exibe as mensagens pendentes continuamente
-    9. Sair.
-
-
-## Comandos para executar o codigo no Docker:
-#  Para carregar as imagens do DockerHub
-    docker pull wesleisantoss/server:latest
-    docker pull wesleisantoss/client:latest
-    docker pull wesleisantoss/device:latest
+    * 7. Exibir mensagens de um tópico.  
+     Nessa funcionalidade o cliente pode receber as mensagens que estão pendentes em sua lista de mensagens pendentes, tudo isso por tópico.  
+     Se o sensor responsável por mandar mensagens nesse tópico estiver desligado, o cliente não pode exibir mensagens.
+   
+    * 8. Exibir mensagens de um tópico continuamente.  
+     Essa opção exibe as mensagens pendentes continuamente, caso o sensor esteja ligado.
+   
+    * 9. Sair.  
 
 
-# Para executar em qualquer máquina os containers:
-    docker run  --network=host -it wesleisantoss/server
-    docker run --network=host -it -e IP_SERVER=172.16.103.1 wesleisantoss/client
-    docker run --network=host -it -e IP_SERVER=172.16.103.1 wesleisantoss/device
+__Execução dos containers:__  
+* Comandos para executar o sistema com o Docker:
+ 
+Para carregar as imagens do DockerHub:  
+ 
+     docker pull wesleisantoss/server:latest  
+     docker pull wesleisantoss/client:latest  
+     docker pull wesleisantoss/device:latest  
 
-    Inicialmente execute o broker (wesleisantoss/server), depois coloque o ip onde está executando o broker no cliente (wesleisantoss/client) e no dispositivo (wesleisantoss/device) e execute.
+
+Para executar em qualquer máquina os containers:  
+
+      docker run  --network=host -it wesleisantoss/server  
+      docker run --network=host -it -e IP_SERVER=172.16.103.1 wesleisantoss/client  
+      docker run --network=host -it -e IP_SERVER=172.16.103.1 wesleisantoss/device  
+
+Inicialmente execute o broker (wesleisantoss/server), depois coloque o ip onde está executando o broker no cliente (wesleisantoss/client) e no dispositivo (wesleisantoss/device) e execute.
 
 
 
