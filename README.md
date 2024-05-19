@@ -124,12 +124,12 @@ __INTRODUÇÃO:__
 
 __FUNCIONALIDADES:__  
 
-__FILE: server.py__  
+__FILE:__ _server.py_  
 Esse file é destinado para o broker-servidor em que ele possui uma API para atender as solicitações dos clientes.  
 O servidor funciona da seguinte maneira, inicialmente a API é executada em uma threading e o servidor irá ficar esperando mensagens em loop, essas abordagens foram utilizadas para a execução de ambas não se interrompessem. Para armazenar os dados foram utilizados listas e dicionários.
 
 __Armazenamento de Dados:__     
-* Dicionário topic_subscriptions:  
+* Dicionário "topic_subscriptions":  
   * Propósito: Este dicionário é usado para armazenar as inscrições dos clientes em cada tópico, mensagens pendentes e o estado do sensor.  
   * Estrutura:   {"nome_do_topico": {"clients": {("endereco_ip", numero_da_porta): [mensagens_pendentes]},state": "estado_do_sensor"},...}                       
   * Descrição: Cada chave representa o nome de um tópico, cujo o nome do topico será o nome do sensor.   
@@ -137,7 +137,7 @@ __Armazenamento de Dados:__
     * "clients": Armazena os clientes inscritos no tópico, onde a chave é uma tupla contendo o endereço IP e o número da porta do cliente, e o valor é uma lista de mensagens pendentes para esse cliente.
     * "state": Indica o estado do sensor associado ao tópico (por exemplo, "Ligado" ou "Desligado").
 
-* Dicionário endereco_disp:
+* Dicionário "endereco_disp":
   * Propósito: Este dicionário é usado para armazenar as informações de endereço (endereço IP e porta) dos sensores.  
   * Estrutura: { "nome_do_topico": ("endereco_ip", numero_da_porta), ...}  
   * Descrição: Cada chave representa o nome de um tópico, cujo o nome do topico será o nome do sensor.  
@@ -201,61 +201,61 @@ __Mecanismo__: O framework flask é usado para criar uma aplicação no servidor
 
 
 
-__FILE: device.py__
-    Esse file é destinado para o sensor/dispositivo que irá mandar mensagem de temperatura para o broker-servidor, e receber comandos de gerenciamento de ligar e desligar e alterar de temperatura.
-__Armazenamento de Dados:__
-* Dicionário sensor:
-    Propósito: Este dicionário é usado para armazenar informações sobre o sensor de temperatura, como seu nome, estado atual e temperatura simulada.
-    Estrutura: device = {'Nome': 'Sensor de Temperatura', 'Estado': 'Desligado', 'Temperatura': 24, 'Registrado': False}
-
-* Descrição dos Campos:
-    'Nome': O nome do sensor, que neste caso é "Sensor de Temperatura".
-    'Estado': O estado atual do sensor, que pode ser "Ligado" ou "Desligado".
-    'Temperatura': A temperatura simulada fornecida pelo sensor. Inicialmente, está definida como 24°C.
-    'Registrado': serve para saber se o sensor criou um tópico para envio de mensagens (True ou False)
-
-    Este dicionário é fundamental para acompanhar o estado e os dados do sensor de temperatura. Ele fornece uma estrutura para armazenar e acessar essas informações durante a execução do programa.
+__FILE:__ _device.py_  
+    Esse file é destinado para o sensor/dispositivo que irá mandar mensagem de temperatura para o broker, e receber comandos de gerenciamento de ligar e desligar e alterar de temperatura.  
     
-    Por exemplo, durante a execução do programa, quando o sensor é ligado ou desligado, o estado no dicionário é atualizado. Da mesma forma, quando a temperatura simulada é alterada manualmente, o valor correspondente no dicionário é atualizado. Isso permite que o programa mantenha o controle do estado e dos dados do sensor em tempo real.
+__Armazenamento de Dados:__
+* Dicionário "device":
+  *   Propósito: Este dicionário é usado para armazenar informações sobre o sensor de temperatura, como seu nome, estado atual e temperatura simulada.
+  *   Estrutura: device = {'Nome': 'Sensor_temp_4444', 'Estado': 'Desligado', 'Temperatura': 24, 'Registrado': False}
+  *   Descrição dos Campos:
+      *   'Nome': O nome do sensor, que neste caso é "Sensor_temp_4444".
+      *   'Estado': O estado atual do sensor, que pode ser "Ligado" ou "Desligado".
+      *   'Temperatura': A temperatura simulada fornecida pelo sensor. Inicialmente, está definida como 24°C.
+      *   'Registrado': serve para saber se o sensor criou um tópico para envio de mensagens (True ou False)
+
+Este dicionário é fundamental para acompanhar o estado e os dados do sensor de temperatura. Ele fornece uma estrutura para armazenar e acessar essas informações durante a execução do programa.
+    
+Por exemplo, durante a execução do programa, quando o sensor é ligado ou desligado, o estado no dicionário é atualizado. Da mesma forma, quando a temperatura simulada é alterada manualmente, o valor correspondente no dicionário é atualizado. Isso permite que o programa mantenha o controle do estado e dos dados do sensor em tempo real.
 
 __Comunicações do sensor de temperatura:__
 
-* Comunicação TCP:
-    O socket TCP está disponível na porta 12349. Ele permite receber comandos de gerenciamento do servidor para ligar, desligar ou alterar a temperatura do sensor, essa conexão só aceita um dispositivo gerenciador de cada vez.
+* __Comunicação TCP:__
+    O socket TCP estará disponível em uma porta aleatória criada selecionada pelo sistema. Ele permite receber comandos de gerenciamento do servidor para ligar, desligar ou alterar a temperatura do sensor, essa conexão só aceita um dispositivo gerenciador de cada vez.
 
 
-* Comunicação UDP:
-   O socket UDP está configurado para enviar mensagens de temperatura para o servidor. As mensagens são enviadas em formato JSON e devem conter o tópico, o conteúdo e a ação. O sensor envia dados de temperatura para o tópico inicialmente especificado. a função responsável por isso é chamada send_message e reading_device.
+* __Comunicação UDP:__
+   O socket UDP está configurado para enviar mensagens de temperatura para o servidor. As mensagens são enviadas em formato JSON e devem conter o tópico, o conteúdo e a ação. O sensor envia dados de temperatura para o tópico inicialmente especificado. A função responsável por isso é chamada send_message e reading_device.
     
 *  Funções:
- *  send_message(topic, content, action):
+    *  send_message(topic, content, action):  
     Esta função é responsável por enviar mensagens para o servidor UDP. Ela recebe o tópico da mensagem, o conteúdo da mensagem e a ação associada.
 
- * reading_device():
+    * reading_device():  
     Esta função simula a leitura de dados do sensor. Ela é executada em um loop enquanto o estado do dispositivo é 'Ligado'. A temperatura é atualizada periodicamente e enviada para o servidor UDP.
 
- * process_tcp_connection(connection):
+    * process_tcp_connection(connection):  
     Esta função lida com as conexões TCP recebidas pelo servidor. Ela recebe uma conexão como entrada e fica em um loop para receber dados do cliente. Dependendo do comando recebido, ela pode ligar, desligar e alterar a temperatura do sensor.
 
- * on_device():
+    * on_device():  
     Esta função é responsável por ligar o sensor. Se o estado do dispositivo for 'Desligado', ele é alterado para 'Ligado', e uma nova thread é iniciada para simular a leitura do sensor.
 
- * off_device():
+    * off_device():  
     Esta função é responsável por desligar o sensor. Se o estado do dispositivo for 'Ligado', ele é alterado para 'Desligado', e uma mensagem de desligamento é enviada para o servidor UDP, para atualizar o dicionário de registro do servidor(topic_subscriptions).
 
- * change_temperature():
-    Esta função permite alterar manualmente a temperatura do sensor. Ela solicita uma nova temperatura ao usuário e a atualiza no dicionário de configuração do dispositivo.
+    * change_temperature():  
+    Esta função permite alterar manualmente a temperatura do sensor. Ela solicita uma nova temperatura e a atualiza no dicionário de configuração do dispositivo ("device").
 
- * create_topic(topic):
-    Esta função cria um tópico para enviar mensagens de temperatura. Ela envia uma mensagem para o servidor UDP com a ação de inscrição ('subscribe'), o nome do tópico e as informações de endereço IP e porta do servidor TCP para poder receber comando de gerenciamento via TCP.
+    * create_topic(topic):  
+    Esta função cria um tópico para enviar mensagens de temperatura. Ela envia uma mensagem para o servidor UDP com a ação de inscrição ('subscribe'), o nome do tópico e as informações de endereço IP e porta do servidor TCP para poder receber comandos de gerenciamento.
 
- * tcp_server_thread():
+    * tcp_server_thread():  
     Esta função é executada em uma thread separada e lida com as conexões TCP recebidas pelo servidor. Quando uma conexão é aceita, uma nova thread é iniciada para lidar com ela.
 
 
 
 
-__File: Client.py__
+__File:__ _client.py_
     Esse file é destinado ao cliente que faz requisições http para a API que está no broker servidor.
 
 * Funções:
