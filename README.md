@@ -1,6 +1,6 @@
 # PBL-Concorrência
 
-#                                             COMO USAR O PROGRAMA   
+                                            COMO USAR O PROGRAMA   
 #   Configuração Inicial
     
     O sistema tem como código fonte a linguagem python, por isso é necessário que o ambiente que irá rodar o programa tenha o python instalado.
@@ -83,16 +83,19 @@ Desativação do Sensor: Basta fechar a janela ou interromper a execução do pr
     9. Sair.
 
 
-## Comandos Docker:
-#  Para carregar as imagens do dockerHub
-    docker pull wesleisantoss/servidor_app
-    docker pull wesleisantoss/sensor_app
-    docker pull wesleisantoss/cliente_app
+## Comandos para executar o codigo no Docker:
+#  Para carregar as imagens do DockerHub
+    docker pull wesleisantoss/server:latest
+    docker pull wesleisantoss/client:latest
+    docker pull wesleisantoss/device:latest
 
-# Para executar em qualquer máquina:
-    docker run  --network=host -it wesleisantoss/servidor_app
-    docker run --network=host -it -e IP_SERVER=192.168.65.3 wesleisantoss/cliente_app
-    docker run --network=host -it -e IP_SERVER=192.168.65.3 wesleisantoss/sensor_app
+
+# Para executar em qualquer máquina os containers:
+    docker run  --network=host -it wesleisantoss/server
+    docker run --network=host -it -e IP_SERVER=172.16.103.1 wesleisantoss/client
+    docker run --network=host -it -e IP_SERVER=172.16.103.1 wesleisantoss/device
+
+    Inicialmente execute o broker (wesleisantoss/server), depois coloque o ip onde está executando o broker no cliente (wesleisantoss/client) e no dispositivo (wesleisantoss/device) e execute.
 
 
 
