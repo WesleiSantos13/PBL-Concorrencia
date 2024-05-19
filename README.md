@@ -114,13 +114,11 @@ Inicialmente execute o broker (wesleisantoss/server), depois coloque o ip onde e
 __INTRODUÇÃO__
     O projeto em questão consiste no desenvolvimento de um sistema de monitoramento de temperatura, que utiliza uma arquitetura de comunicação baseada em um modelo de publish-subscribe (publicação e inscrição). O sistema é composto por três componentes principais: o sensor de temperatura, os clientes (ou dispositivos consumidores) e o servidor central (broker) responsável por gerenciar a comunicação entre eles.
 
-    O sensor de temperatura é responsável por coletar dados de temperatura e enviar essas informações periodicamente para o servidor central. Ele também pode receber comandos de controle remoto, como ligar, desligar e alterar manualmente os dados de temperatura.
+* O sensor de temperatura é responsável por coletar dados de temperatura e enviar essas informações periodicamente para o servidor central. Ele também pode receber comandos de controle remoto, como ligar, desligar e alterar manualmente os dados de temperatura.  
+* Os clientes, por sua vez, podem se inscrever em tópicos específicos no servidor central para receber atualizações de temperatura do sensor. Eles também têm a capacidade de enviar comandos para o sensor, como ligar, desligar e solicitar informações sobre as mensagens mais recentes recebidas.  
+* O servidor central atua como um intermediário entre os sensores e os clientes, gerenciando as inscrições nos tópicos, encaminhando mensagens entre os participantes e coordenando as operações de controle do sensor. Ele é responsável por manter um registro dos tópicos disponíveis, as inscrições dos clientes e as mensagens pendentes para entrega.
 
-    Os clientes, por sua vez, podem se inscrever em tópicos específicos no servidor central para receber atualizações de temperatura do sensor. Eles também têm a capacidade de enviar comandos para o sensor, como ligar, desligar e solicitar informações sobre as mensagens mais recentes recebidas.
-
-    O servidor central atua como um intermediário entre os sensores e os clientes, gerenciando as inscrições nos tópicos, encaminhando mensagens entre os participantes e coordenando as operações de controle do sensor. Ele é responsável por manter um registro dos tópicos disponíveis, as inscrições dos clientes e as mensagens pendentes para entrega.
-
-    A comunicação entre os componentes do sistema é realizada principalmente por meio de sockets UDP (User Datagram Protocol) para transmissão eficiente de dados em tempo real, sockets TCP (Transmission Control Protocol) para comunicação de controle mais confiável, e requisições HTTP (Hypertext Transfer Protocol) usada para interações entre os clientes e o servidor web Flask.
+* A comunicação entre os componentes do sistema é realizada principalmente por meio de sockets UDP (User Datagram Protocol) para transmissão eficiente de dados em tempo real, sockets TCP (Transmission Control Protocol) para comunicação de controle mais confiável, e requisições HTTP (Hypertext Transfer Protocol) usada para interações entre os clientes e o servidor web Flask.
     
 
 __FUNCIONALIDADES:__
