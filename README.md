@@ -296,12 +296,12 @@ __File:__ _client.py_
    *   Depois o sensor ou cliente podem ser executados sem problemas.
 
 
-__CONCLUSÃO:__
+__CONCLUSÃO:__  
+  - O projeto demonstra com sucesso a criação de um sistema de monitoramento de temperatura usando a arquitetura publish-subscribe, mostrando-se flexível, escalável e eficiente. Utilizando diferentes protocolos de comunicação e possibilitando o controle remoto dos sensores, o sistema oferece uma solução prática e interessante para o monitoramento em tempo real. Com melhorias adicionais em segurança, robustez e interface de usuário, o sistema pode ser ainda mais aprimorado. Isso irá possibilitar uma ampla gama de aplicações e usuários.
 
 
 
-
-# ESPECIFICAÇÕES DOS CÓDIGOS - (BAREMA)
+# ESPECIFICAÇÕES/REQUISITOS DO SISTEMA - (BAREMA):
 
 __(1) Arquitetura da solução (componentes e mensagens)__
 Como a arquitetura foi desenvolvida. Quais os componentes e como eles se comunicam. Qual a ordem das mensagens trocadas. 
