@@ -490,7 +490,7 @@ A interface do proprio dispositivo funciona corretamente, ambos podem ligar, des
 __(8) Desempenho (uso de cache no Broker, filas, threads, etc.)__  
 _O sistema utiliza algum mecanismos para melhorar o tempo de resposta para a aplicação?_  
 
-    No geral, o uso de threads e a arquitetura assíncrona do servidor UDP e Flask contribuem para um melhor desempenho e tempo de resposta mais rápido para a aplicação. 
+No geral, o uso de threads e a arquitetura assíncrona do servidor UDP e Flask contribuem para um melhor desempenho e tempo de resposta mais rápido para a aplicação. 
 
 
 __(9) Confiabilidade da solução (tratamento das conexões)__  
