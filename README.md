@@ -172,32 +172,27 @@ __Comunicações do Servidor__
     Endpoint: /unsubscribe
     Método HTTP: POST
     Payload JSON Esperado:{"topic": "nome_do_topico", "ip": "endereco_ip", "port": numero_da_porta}
-    
     Descrição: Este endpoint permite que um cliente se desinscreva de um tópico específico fornecendo o nome do tópico, o endereço IP do cliente e o número da porta.
-    ----------------------------------------------------------------------
+    
 
 * Exibir Tópicos Disponíveis:
     Endpoint: /display_topics
     Método HTTP: GET
-    
     Descrição: Este endpoint retorna a lista de todos os tópicos disponíveis aos quais os clientes podem se inscrever.
-    ----------------------------------------------------------------------
+    
 
 * Controlar Sensor (Ligar/Desligar):
     Endpoint: /control_device
     Método HTTP: PUT
     Payload JSON Esperado: { "topic": "nome_do_topico", "action": "ligar_ou_desligar", "ip": "endereco_ip", "port": numero_da_porta}
-
     Descrição: Este endpoint permite controlar o estado de um sensor de um determinado tópico. O sensor deve estar previamente inscrito no tópico. A ação pode ser "ligar" ou "desligar", além disso essa rota verifica se o cliente que quer controlar o sensor está inscrito no tópico, pois caso contrário ele não poderá controlar o sensor.
-    ----------------------------------------------------------------------
+    
 
 * Obter Mensagens de um Tópico:
     Endpoint: /get_messages
     Método HTTP: GET
     Payload JSON Esperado: {"topic": "nome_do_topico",  "ip": "endereco_ip", "port": numero_da_porta}
-
     Descrição: Este endpoint permite que um cliente obtenha as mensagens pendentes de um determinado tópico, fornecendo o nome do tópico, o endereço IP do cliente e o número da porta.
-    ----------------------------------------------------------------------
 
 
 * Comunicação UDP (User Datagram Protocol):
