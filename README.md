@@ -1,6 +1,6 @@
 # PBL-Concorrência
 
-__COMO USAR O PROGRAMA:__ 
+_# COMO USAR O PROGRAMA_
    
 Configuração Inicial
     
@@ -108,8 +108,9 @@ Inicialmente execute o broker (wesleisantoss/server), depois coloque o ip onde e
 
 
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# RELATÓRIO 
+# ---------------------------RELATÓRIO--------------------------------------
 
 __INTRODUÇÃO:__  
     O projeto em questão consiste no desenvolvimento de um sistema de monitoramento de temperatura, que utiliza uma arquitetura de comunicação baseada em um modelo de publish-subscribe (publicação e inscrição). O sistema é composto por três componentes principais: o sensor de temperatura, os clientes (ou dispositivos consumidores) e o servidor central (broker) responsável por gerenciar a comunicação entre eles.
